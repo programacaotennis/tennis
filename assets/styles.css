@@ -13,10 +13,11 @@
 .date-display small { color: var(--muted); font-size: 9px; letter-spacing: 1px; }
 .date-display strong { margin-top: 5px; font-size: 13px; }
 .calendar-icon { position: absolute; right: 0; bottom: 1px; color: var(--mint); font-size: 17px; }
-.date-control > input[type="date"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-.topbar { height: 72px; }
-.view { padding-top: 30px; padding-bottom: 30px; }
-.page-intro { margin-bottom: 24px; }
+.date-control { position: relative; }
+.date-control > input[type="date"] { position: absolute; top: 0; left: 50%; z-index: 3; width: 180px; height: 48px; transform: translateX(-50%); opacity: 0; cursor: pointer; }
+.topbar { height: 64px; }
+.view { padding-top: 22px; padding-bottom: 22px; }
+.page-intro { margin-bottom: 18px; }
 .resend-link { display: inline-block; margin-top: 10px; font-size: 11px; }
 .recurrence-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .cancel-booking { margin-left: auto; white-space: nowrap; }
