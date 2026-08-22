@@ -14,7 +14,7 @@
     <main class="auth-shell" id="authScreen">
         <section class="brand-panel">
             <div class="brand-copy">
-                <img src="src/img/vector/isolated-monochrome-white.svg" alt="" class="brand-mark">
+                <img src="src/img/ico.png" alt="Ícone de jogador de tênis" class="brand-mark">
                 <p class="eyebrow">PROGRAMACAO TENIS</p>
                 <h1>Seu próximo<br><em>match point</em><br>começa aqui.</h1>
                 <p class="brand-description">Quadras, horários e partidas em um só lugar.</p>
