@@ -1379,3 +1379,48 @@ h1 em {
   .mobile-nav-item:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
   .content-area { padding-bottom: 100px; }
 }
+
+/* Compact authentication layout: keeps the Google option in the first view. */
+.auth-panel { padding: 32px 48px; }
+.auth-heading { margin-bottom: 28px; }
+.auth-title h2 { font-size: 40px; margin-bottom: 8px; }
+.auth-title > p:last-child { line-height: 1.45; }
+.auth-tabs { margin: 24px 0 19px; }
+.auth-form { gap: 7px; }
+.auth-form label { margin-top: 4px; }
+.auth-form input { padding-top: 12px; padding-bottom: 12px; }
+.primary-button { margin-top: 10px; padding: 14px 18px; }
+.divider { margin: 18px 0 14px; }
+.google-button { padding: 12px; }
+
+@media (max-width: 900px) {
+  .brand-panel {
+    min-height: 112px;
+    padding: 20px 8vw;
+    justify-content: center;
+  }
+  .brand-panel:after { width: 230px; height: 230px; right: -100px; bottom: -145px; }
+  .brand-mark { width: 32px; height: 32px; margin: 0 0 10px; }
+  .brand-panel h1,
+  .brand-description,
+  .brand-footer { display: none; }
+  .brand-panel .eyebrow { margin: 0; font-size: 9px; letter-spacing: 2.4px; }
+  .auth-panel { align-items: flex-start; padding: 24px 8vw 30px; }
+  .auth-card { width: min(100%, 460px); }
+  .auth-heading { margin-bottom: 18px; }
+  .auth-title h2 { font-size: 34px; }
+  .auth-tabs { margin: 20px 0 15px; }
+}
+
+@media (max-width: 520px) {
+  .brand-panel { min-height: 96px; padding: 17px 22px; }
+  .auth-panel { padding: 20px 22px 26px; }
+  .auth-heading { margin-bottom: 14px; }
+  .auth-title h2 { font-size: 32px; }
+  .auth-title > p:last-child { margin-bottom: 0; font-size: 13px; }
+  .auth-tabs { margin: 17px 0 13px; }
+  .auth-form input { padding-top: 11px; padding-bottom: 11px; }
+  .primary-button { margin-top: 8px; padding: 13px 16px; }
+  .divider { margin: 15px 0 12px; }
+  .google-button { padding: 11px; }
+}
