@@ -1323,3 +1323,39 @@ h1 em {
     margin-left: 50px;
   }
 }
+
+/* Mobile navigation: high-contrast controls that stay distinct from the page. */
+@media (max-width: 900px) {
+  .mobile-nav {
+    gap: 6px;
+    min-height: 82px;
+    padding: 9px 10px calc(9px + env(safe-area-inset-bottom));
+    border-top: 1px solid #1a4a4e;
+    background: var(--ink);
+    box-shadow: 0 -10px 28px rgba(1, 37, 44, 0.22);
+  }
+  .mobile-nav-item {
+    min-height: 58px;
+    align-content: center;
+    gap: 5px;
+    padding: 7px 2px;
+    border-radius: 8px;
+    color: #c8ded1;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  .mobile-nav-item span {
+    color: #c8ded1;
+    font-size: 19px;
+    line-height: 1;
+  }
+  .mobile-nav-item.active {
+    background: var(--mint);
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .mobile-nav-item.active span { color: var(--ink); }
+  .mobile-nav-item:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
+  .content-area { padding-bottom: 100px; }
+}
