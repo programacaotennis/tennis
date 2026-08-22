@@ -597,6 +597,13 @@ h1 em {
   background: var(--mint);
   color: var(--ink);
 }
+.app-logo {
+  display: block;
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+}
+.sidebar-brand .app-logo { width: 40px; height: 40px; }
 .sidebar-brand strong,
 .sidebar-brand small {
   display: block;
@@ -1251,6 +1258,7 @@ h1 em {
     font-family: "Playfair Display", serif;
     font-size: 17px;
   }
+  .mobile-brand .app-logo { width: 30px; height: 30px; }
   .topbar {
     height: 64px;
     padding: 0 6%;
@@ -1423,4 +1431,16 @@ h1 em {
   .primary-button { margin-top: 8px; padding: 13px 16px; }
   .divider { margin: 15px 0 12px; }
   .google-button { padding: 11px; }
+}
+
+/* On larger screens, keep scrolling inside the app instead of the browser page. */
+@media (min-width: 901px) {
+  body.app-open { overflow: hidden; }
+  body.app-open .app-shell { height: 100vh; }
+  body.app-open .content-area {
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  body.app-open .content-area::-webkit-scrollbar { display: none; }
 }

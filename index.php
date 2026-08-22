@@ -24,10 +24,6 @@
 
         <section class="auth-panel">
             <div class="auth-card">
-                <div class="auth-heading">
-                    <span class="mini-logo">PT</span>
-                    <span class="status-pill"><span></span> Clube online</span>
-                </div>
                 <div class="auth-title">
                     <p class="eyebrow">BEM-VINDO DE VOLTA</p>
                     <h2>Entre em quadra.</h2>
@@ -67,7 +63,7 @@
 
     <main class="app-shell hidden" id="appScreen">
         <aside class="sidebar">
-            <div class="sidebar-brand"><span class="mini-logo">PT</span><div><strong>Programação</strong><small>Tênis</small></div></div>
+            <div class="sidebar-brand"><img class="app-logo" src="src/img/ico.png" alt=""><div><strong>Programação</strong><small>Tênis</small></div></div>
             <nav class="main-nav" aria-label="Navegação principal">
                 <button class="nav-item active" data-view="booking"><span>◷</span> Reservar quadra</button>
                 <button class="nav-item" data-view="reservations"><span>✓</span> Minhas reservas</button>
@@ -77,7 +73,7 @@
         </aside>
 
         <section class="content-area">
-            <header class="topbar"><div class="mobile-brand"><span class="mini-logo">PT</span> Programação Tênis</div><div class="topbar-actions"><button class="icon-button" id="notificationButton" title="Notificações">♢<i></i></button><div class="user-menu"><div class="avatar" id="userAvatar">VC</div><div><strong id="userName">Visitante</strong><small id="userRole">Membro</small></div></div></div></header>
+            <header class="topbar"><div class="mobile-brand"><img class="app-logo" src="src/img/ico.png" alt=""> Programação Tênis</div><div class="topbar-actions"><button class="icon-button" id="notificationButton" title="Notificações">♢<i></i></button><div class="user-menu"><div class="avatar" id="userAvatar">VC</div><div><strong id="userName">Visitante</strong><small id="userRole">Membro</small></div></div></div></header>
 
             <nav class="mobile-nav" aria-label="Navegação mobile"><button class="mobile-nav-item active" data-view="booking"><span>◷</span>Reservar</button><button class="mobile-nav-item" data-view="reservations"><span>✓</span>Minhas reservas</button><button class="mobile-nav-item admin-only" data-view="admin"><span>⌘</span>Admin</button><button class="mobile-nav-item" id="mobileLogout"><span>↗</span>Sair</button></nav>
             <div class="notification-panel hidden" id="notificationPanel"><div class="notification-panel-header"><strong>Notificações</strong><button type="button" id="closeNotifications" aria-label="Fechar notificações">×</button></div><div id="notificationList"></div></div>
