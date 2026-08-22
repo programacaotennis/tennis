@@ -8,6 +8,15 @@
 .filled-summary select { appearance: auto; cursor: pointer; }
 .date-control input[type="date"] { display: block; width: 100%; margin-top: 5px; border: 0; background: transparent; color: var(--ink); font: inherit; font-weight: 700; }
 .date-control input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .75; }
+.date-display { position: relative; min-width: 180px; padding: 0 28px 0 0; background: transparent; color: var(--ink); text-align: center; }
+.date-display small, .date-display strong { display: block; }
+.date-display small { color: var(--muted); font-size: 9px; letter-spacing: 1px; }
+.date-display strong { margin-top: 5px; font-size: 13px; }
+.calendar-icon { position: absolute; right: 0; bottom: 1px; color: var(--mint); font-size: 17px; }
+.date-control > input[type="date"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.topbar { height: 72px; }
+.view { padding-top: 30px; padding-bottom: 30px; }
+.page-intro { margin-bottom: 24px; }
 .resend-link { display: inline-block; margin-top: 10px; font-size: 11px; }
 .recurrence-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .cancel-booking { margin-left: auto; white-space: nowrap; }
