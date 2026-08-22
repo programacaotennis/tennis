@@ -372,6 +372,31 @@
         </form>
       </div>
     </div>
+    <div
+      class="court-modal cancel-booking-modal hidden"
+      id="cancelBookingModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cancelBookingTitle"
+    >
+      <div class="court-modal-card cancel-booking-card">
+        <span class="cancel-booking-icon" aria-hidden="true">!</span>
+        <p class="eyebrow">LIBERAR HORÁRIO</p>
+        <h3 id="cancelBookingTitle">Desistir desta reserva?</h3>
+        <p>
+          Este horário ficará disponível para outros membros e não poderá ser
+          recuperado automaticamente.
+        </p>
+        <div class="court-modal-actions">
+          <button class="outline-button" id="keepBookingButton" type="button">
+            Voltar
+          </button>
+          <button class="danger-button" id="confirmCancelBooking" type="button">
+            Liberar horário <span>→</span>
+          </button>
+        </div>
+      </div>
+    </div>
     <div class="toast" id="toast" role="status"></div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/app.js"></script>
