@@ -1,3 +1,4 @@
+.mobile-nav { display: none; }
 /* Keep the full daily schedule visible as one horizontal row. */
 .court-row {
   grid-template-columns: 6px minmax(100px, 126px) minmax(0, 1fr) !important;
@@ -1099,6 +1100,11 @@ h1 em {
   .sidebar {
     display: none;
   }
+  .mobile-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: rgba(255, 255, 255, .96); box-shadow: 0 -8px 25px rgba(1, 37, 44, .08); }
+  .mobile-nav-item { display: grid; gap: 3px; justify-items: center; padding: 7px 3px; background: transparent; color: var(--muted); font-size: 10px; }
+  .mobile-nav-item span { color: var(--ink); font-size: 16px; }
+  .mobile-nav-item.active { background: var(--mint-pale); color: var(--ink); font-weight: 700; }
+  .content-area { padding-bottom: 72px; }
   .mobile-brand {
     display: flex;
     align-items: center;
