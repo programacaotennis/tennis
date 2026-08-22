@@ -1190,6 +1190,23 @@ h1 em {
   .notification-panel { top: 72px; right: 16px; }
   .cancel-booking-card { padding: 28px 22px; }
 }
+.password-field { position: relative; }
+.password-field input { padding-right: 46px !important; }
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  transform: translateY(-50%);
+  background: transparent;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1;
+}
+.password-toggle:hover { color: var(--ink); }
+.password-toggle:focus-visible { outline: 2px solid var(--mint); outline-offset: 1px; }
 @media (max-width: 900px) {
   .auth-shell {
     grid-template-columns: 1fr;

@@ -66,12 +66,15 @@
             <div class="label-row">
               <label for="loginPassword">Senha</label>
             </div>
-            <input
-              id="loginPassword"
-              type="password"
-              placeholder="Sua senha"
-              required
-            /><button type="button" class="password-toggle" data-password-target="loginPassword" aria-label="Mostrar senha">◉</button>
+            <div class="password-field">
+              <input
+                id="loginPassword"
+                type="password"
+                placeholder="Sua senha"
+                required
+              />
+              <button type="button" class="password-toggle" data-password-target="loginPassword" aria-label="Mostrar senha">◉</button>
+            </div>
             <a href="#" class="text-link">Esqueci minha senha</a>
             <!--<a href="#" class="text-link resend-link" id="resendConfirmation"
               >Reenviar confirmação de e-mail</a
@@ -88,7 +91,7 @@
               type="text"
               placeholder="Como podemos te chamar?"
               required
-            /><button type="button" class="password-toggle" data-password-target="signupPassword" aria-label="Mostrar senha">◉</button>
+            />
             <label for="signupEmail">E-mail</label>
             <input
               id="signupEmail"
@@ -97,13 +100,16 @@
               required
             />
             <label for="signupPassword">Crie uma senha</label>
-            <input
-              id="signupPassword"
-              type="password"
-              placeholder="Mínimo de 6 caracteres"
-              minlength="6"
-              required
-            />
+            <div class="password-field">
+              <input
+                id="signupPassword"
+                type="password"
+                placeholder="Mínimo de 6 caracteres"
+                minlength="6"
+                required
+              />
+              <button type="button" class="password-toggle" data-password-target="signupPassword" aria-label="Mostrar senha">◉</button>
+            </div>
             <button class="primary-button" type="submit">
               Criar minha conta <span>→</span>
             </button>

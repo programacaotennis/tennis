@@ -105,6 +105,7 @@ async function loadSession() {
 }
 
 $$('[data-auth-tab]').forEach((tab) => tab.addEventListener('click', () => { $$('[data-auth-tab]').forEach((button) => button.classList.remove('active')); tab.classList.add('active'); $('#loginForm').classList.toggle('active-form', tab.dataset.authTab === 'login'); $('#signupForm').classList.toggle('active-form', tab.dataset.authTab === 'signup'); }));
+$$('.password-toggle').forEach((button) => button.addEventListener('click', () => { const input = $(`#${button.dataset.passwordTarget}`); if (!input) return; const visible = input.type === 'text'; input.type = visible ? 'password' : 'text'; button.textContent = visible ? '◉' : '◉̸'; button.setAttribute('aria-label', visible ? 'Mostrar senha' : 'Ocultar senha'); }));
 $('#recurrenceType').addEventListener('change', updateRecurrenceOptions);
 $('#datePicker').addEventListener('change', async () => { const selectedDate = new Date(`${$('#datePicker').value}T12:00:00`); if (isPastDate(selectedDate)) { showToast('Não é possível agendar uma data passada.'); syncDatePicker(); return; } currentDate = selectedDate; selectedCourt = null; selectedTime = null; updateRecurrenceOptions(); await renderCourts(); updateSummary(); });
 $('#openCalendar').addEventListener('click', () => { const picker = $('#datePicker'); if (typeof picker.showPicker === 'function') picker.showPicker(); else picker.focus(); });
