@@ -28,6 +28,18 @@ Para publicar sem PHP, use `index.html` em Cloudflare Pages, Netlify ou GitHub P
 
 Ao atualizar uma instalação existente, execute novamente `supabase-migration-recorrencia.sql`: ela adiciona os dados de contexto das notificações e valida a disponibilidade semanal também no banco.
 
+## Alertas push
+
+O projeto inclui Web Push para avisar os membros quando uma reserva é cancelada. Para ativar em produção:
+
+1. Gere um par de chaves VAPID, por exemplo com `npx web-push generate-vapid-keys --json`.
+2. Copie a chave pública para `pushVapidPublicKey` em `assets/app.js`.
+3. No Supabase, configure os segredos `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` e `VAPID_SUBJECT` (por exemplo, `mailto:contato@seudominio.com`).
+4. Publique a função: `supabase functions deploy send-booking-push`.
+5. Execute novamente `supabase-migration-recorrencia.sql` no SQL Editor.
+
+Após entrar no app, cada membro pode clicar em **Ativar alertas neste dispositivo** no painel de notificações e autorizar o navegador. O push depende dessa permissão e de HTTPS.
+
 O administrador inicial usa o login `progtenis` e o e-mail `programacaotennis@gmail.com`. Ao cadastrar essa conta pelo formulário, ela recebe automaticamente o papel `admin`; a senha deve ser definida no cadastro. O painel permite alterar e-mail e senha depois. A criação de usuário não pode ser feita por SQL sem expor a chave administrativa do Supabase.
 
 ## Escopo da primeira entrega
