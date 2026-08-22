@@ -35,6 +35,13 @@ alter table public.bookings
     check (recurrence_count between 1 and 31),
   add column if not exists recurrence_id uuid;
 
+-- Um horário cancelado volta a ficar disponível para uma nova reserva.
+alter table public.bookings
+  drop constraint if exists bookings_court_id_booking_date_start_time_key;
+create unique index if not exists bookings_unique_confirmed_slot
+  on public.bookings (court_id, booking_date, start_time)
+  where status = 'confirmed';
+
 create or replace function public.create_recurring_booking(
   p_court_id bigint,
   p_booking_date date,
@@ -50,6 +57,7 @@ as $$
 declare
   occurrence_date date := p_booking_date;
   occurrence_index integer;
+  occurrence_total integer;
   recurrence_key uuid := gen_random_uuid();
 begin
   if auth.uid() is null then raise exception 'É necessário estar autenticado.'; end if;
@@ -62,11 +70,16 @@ begin
 
   if not exists (select 1 from public.availability where court_id = p_court_id and day_of_week = extract(dow from p_booking_date) and start_time = p_start_time) then raise exception 'Este horário não está disponível para esta quadra.'; end if;
 
-  for occurrence_index in 0..p_recurrence_count - 1 loop
+  occurrence_total := case
+    when p_recurrence_type = 'monthly' then ((date_trunc('month', p_booking_date) + interval '1 month - 1 day')::date - p_booking_date + 1)
+    else p_recurrence_count
+  end;
+
+  for occurrence_index in 0..occurrence_total - 1 loop
     occurrence_date := case p_recurrence_type
       when 'daily' then p_booking_date + occurrence_index
       when 'weekly' then p_booking_date + (occurrence_index * 7)
-      when 'monthly' then (p_booking_date + (occurrence_index || ' month')::interval)::date
+      when 'monthly' then p_booking_date + occurrence_index
       else p_booking_date
     end;
 
@@ -84,11 +97,11 @@ begin
 
   end loop;
 
-  for occurrence_index in 0..p_recurrence_count - 1 loop
+  for occurrence_index in 0..occurrence_total - 1 loop
     occurrence_date := case p_recurrence_type
       when 'daily' then p_booking_date + occurrence_index
       when 'weekly' then p_booking_date + (occurrence_index * 7)
-      when 'monthly' then (p_booking_date + (occurrence_index || ' month')::interval)::date
+      when 'monthly' then p_booking_date + occurrence_index
       else p_booking_date
     end;
     insert into public.bookings (court_id, user_id, booking_date, start_time, end_time, recurrence_type, recurrence_count, recurrence_id)
