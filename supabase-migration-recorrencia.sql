@@ -50,14 +50,13 @@ as $$
 declare
   occurrence_date date := p_booking_date;
   occurrence_index integer;
-  previous_date date;
-  next_month_start date;
   recurrence_key uuid := gen_random_uuid();
 begin
   if auth.uid() is null then raise exception 'É necessário estar autenticado.'; end if;
   if p_booking_date < current_date then raise exception 'Não é possível agendar uma data passada.'; end if;
   if p_recurrence_type not in ('once', 'daily', 'weekly', 'monthly') then raise exception 'Periodicidade inválida.'; end if;
-  if p_recurrence_count < 1 or p_recurrence_count > 31 then raise exception 'A quantidade deve estar entre 1 e 31.'; end if;
+  if p_recurrence_count < 1 or p_recurrence_count > 30 then raise exception 'A quantidade deve estar entre 1 e 30.'; end if;
+  if p_recurrence_type in ('once', 'monthly') and p_recurrence_count <> 1 then raise exception 'Esta periodicidade permite apenas uma ocorrência.'; end if;
   if p_start_time not in ('06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00') then raise exception 'Horário inválido.'; end if;
   if not exists (select 1 from public.courts where id = p_court_id and active) then raise exception 'Quadra indisponível.'; end if;
 
@@ -71,6 +70,10 @@ begin
       else p_booking_date
     end;
 
+    if date_trunc('month', occurrence_date) <> date_trunc('month', p_booking_date) then
+      raise exception 'As ocorrências devem permanecer no mês da data inicial.';
+    end if;
+
     if not exists (select 1 from public.availability where court_id = p_court_id and day_of_week = extract(dow from occurrence_date) and start_time = p_start_time) then
       raise exception 'Este horário não está disponível em %.', occurrence_date;
     end if;
@@ -79,12 +82,6 @@ begin
       raise exception 'O horário já está reservado em %.', occurrence_date;
     end if;
 
-    next_month_start := date_trunc('month', occurrence_date)::date;
-    if extract(month from occurrence_date) <> extract(month from (occurrence_date - interval '1 month')) then
-      if (select count(*) from public.bookings where user_id = auth.uid() and court_id = p_court_id and start_time = p_start_time and status = 'confirmed' and booking_date between next_month_start - 30 and next_month_start - 1) = 30 then
-        raise exception 'Este horário e esta quadra ficam indisponíveis para você neste mês após 30 dias consecutivos de uso.';
-      end if;
-    end if;
   end loop;
 
   for occurrence_index in 0..p_recurrence_count - 1 loop
