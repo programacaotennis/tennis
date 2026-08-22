@@ -3,7 +3,7 @@
 
 update public.profiles
 set role = 'admin'
-where id in (select id from auth.users where lower(email) = 'progtenis@programacaotenis.com');
+where id in (select id from auth.users where lower(email) = 'programacaotennis@gmail.com');
 
 create or replace function public.handle_new_user()
 returns trigger
@@ -15,7 +15,7 @@ begin
   values (
     new.id,
     coalesce(new.raw_user_meta_data ->> 'full_name', new.email),
-    case when lower(new.email) = 'progtenis@programacaotenis.com' then 'admin'::public.user_role else 'member'::public.user_role end
+    case when lower(new.email) = 'programacaotennis@gmail.com' then 'admin'::public.user_role else 'member'::public.user_role end
   );
   return new;
 end;

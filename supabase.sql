@@ -47,7 +47,7 @@ as $$
 begin
   insert into public.profiles (id, full_name)
   values (new.id, coalesce(new.raw_user_meta_data ->> 'full_name', new.email));
-  if lower(new.email) = 'progtenis@programacaotenis.com' then
+  if lower(new.email) = 'programacaotennis@gmail.com' then
     update public.profiles set role = 'admin' where id = new.id;
   end if;
   return new;
@@ -104,4 +104,4 @@ cross join (values
 ) as slots(start_time)
 on conflict (court_id, day_of_week, start_time) do nothing;
 
--- O cadastro com progtenis@programacaotenis.com recebe admin automaticamente.
+-- O cadastro com programacaotennis@gmail.com recebe admin automaticamente.
