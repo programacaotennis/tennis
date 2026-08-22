@@ -1,6 +1,6 @@
 const supabaseUrl = 'https://uakjpmkkcxbmizfsxdqj.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVha2pwbWtrY3hibWl6ZnN4ZHFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczODM4MzUsImV4cCI6MjEwMjk1OTgzNX0.thBY1EhLkUop9kTuv6ZwfXG1C4AcQ2hOEI8p8yxsCz8';
-const pushVapidPublicKey = ''; // Preencha após gerar as chaves VAPID para ativar Web Push.
+const pushVapidPublicKey = 'BLrod_1W-uxEhv_QTR-TcfvBPDdLVOqUTsmIVwSegLXU4RXIUR268zfTZ3ikcNEEKYGuh4WQvsIPlFWBZZUg6Qw';
 const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 const productionUrl = 'https://tennis.programacaotennis.workers.dev';
 const authRedirectUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? window.location.origin : productionUrl;
