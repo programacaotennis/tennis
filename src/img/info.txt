@@ -1,0 +1,14 @@
+
+Hope you enjoy your new logo, here are the people that
+made your beautiful logo happen :)
+font name: LinguisticsPro-Regular
+font link: https://github.com/StefanPeev/Linguistics-Pro
+font author: Local Fonts
+font author site: https://localfonts.eu/
+Slogan Font: LindenHill-webfont.ttf
+
+icon designer: James Keuning
+icon designer link: /creator/jmkeuning/
+        
+{"bg":"#01252C","icon":"#88DF95","font":"#FFFFFF","slogan":"#ffffff"}
+      

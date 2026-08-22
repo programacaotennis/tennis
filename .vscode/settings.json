@@ -1,0 +1,13 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "git remote": true,
+        "/^php -S 127\\.0\\.0\\.1:8088 -t \\.$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^Test-Path index\\.html; Test-Path assets/styles\\.css; Test-Path assets/app\\.js; Test-Path src/img/vector/isolated-monochrome-white\\.svg$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
