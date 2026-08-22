@@ -71,7 +71,7 @@
               type="password"
               placeholder="Sua senha"
               required
-            />
+            /><button type="button" class="password-toggle" data-password-target="loginPassword" aria-label="Mostrar senha">◉</button>
             <a href="#" class="text-link">Esqueci minha senha</a>
             <!--<a href="#" class="text-link resend-link" id="resendConfirmation"
               >Reenviar confirmação de e-mail</a
@@ -88,7 +88,7 @@
               type="text"
               placeholder="Como podemos te chamar?"
               required
-            />
+            /><button type="button" class="password-toggle" data-password-target="signupPassword" aria-label="Mostrar senha">◉</button>
             <label for="signupEmail">E-mail</label>
             <input
               id="signupEmail"
@@ -170,6 +170,7 @@
         </header>
 
         <nav class="mobile-nav" aria-label="Navegação mobile"><button class="mobile-nav-item active" data-view="booking"><span>◷</span>Reservar</button><button class="mobile-nav-item" data-view="reservations"><span>✓</span>Minhas reservas</button><button class="mobile-nav-item admin-only" data-view="admin"><span>⌘</span>Admin</button><button class="mobile-nav-item" id="mobileLogout"><span>↗</span>Sair</button></nav>
+        <div class="notification-panel hidden" id="notificationPanel"><div class="notification-panel-header"><strong>Notificações</strong><button type="button" id="closeNotifications" aria-label="Fechar notificações">×</button></div><div id="notificationList"></div></div>
         <div class="view active-view" id="bookingView">
           <div class="page-intro">
             <div>
@@ -280,7 +281,7 @@
               ><small>todas operacionais</small>
             </div>
             <div class="stat-card">
-              <span>TAXA DE OCUPAÇÃO</span><strong>68%</strong
+              <span>TAXA DE OCUPAÇÃO</span><strong id="occupancyRate">0%</strong
               ><small>últimos 7 dias</small>
             </div>
           </div>

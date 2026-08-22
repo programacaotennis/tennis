@@ -26,6 +26,8 @@ Para publicar sem PHP, use `index.html` em Cloudflare Pages, Netlify ou GitHub P
 5. Se o banco já existia, execute também `supabase-migration-horarios.sql` para aplicar a grade diária de 06:00 a 22:00 em blocos de 2 horas.
 6. Execute `supabase-migration-recorrencia.sql` para habilitar reservas diária, semanal e mensal e o limite de 30 dias consecutivos.
 
+Ao atualizar uma instalação existente, execute novamente `supabase-migration-recorrencia.sql`: ela adiciona os dados de contexto das notificações e valida a disponibilidade semanal também no banco.
+
 O administrador inicial usa o login `progtenis` e o e-mail `programacaotennis@gmail.com`. Ao cadastrar essa conta pelo formulário, ela recebe automaticamente o papel `admin`; a senha deve ser definida no cadastro. O painel permite alterar e-mail e senha depois. A criação de usuário não pode ser feita por SQL sem expor a chave administrativa do Supabase.
 
 ## Escopo da primeira entrega
