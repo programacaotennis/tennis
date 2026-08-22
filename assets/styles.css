@@ -1190,8 +1190,8 @@ h1 em {
   .notification-panel { top: 72px; right: 16px; }
   .cancel-booking-card { padding: 28px 22px; }
 }
-.password-field { position: relative; }
-.password-field input { padding-right: 46px !important; }
+.password-field { position: relative; width: 100%; }
+.password-field input { box-sizing: border-box; width: 100%; padding-right: 48px !important; }
 .password-toggle {
   position: absolute;
   top: 50%;
@@ -1201,10 +1201,13 @@ h1 em {
   padding: 0;
   transform: translateY(-50%);
   background: transparent;
+  display: grid;
+  place-items: center;
   color: var(--muted);
-  font-size: 17px;
   line-height: 1;
 }
+.password-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
+.password-toggle.is-visible::after { position: absolute; width: 21px; height: 2px; transform: rotate(-45deg); background: currentColor; content: ""; }
 .password-toggle:hover { color: var(--ink); }
 .password-toggle:focus-visible { outline: 2px solid var(--mint); outline-offset: 1px; }
 @media (max-width: 900px) {

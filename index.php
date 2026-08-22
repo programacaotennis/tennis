@@ -43,7 +43,7 @@
                     <label for="loginEmail">Login ou e-mail</label>
                     <input id="loginEmail" type="text" placeholder="progtenis ou voce@email.com" required>
                     <div class="label-row"><label for="loginPassword">Senha</label><a href="#" class="text-link">Esqueci minha senha</a></div>
-                    <div class="password-field"><input id="loginPassword" type="password" placeholder="Sua senha" required><button type="button" class="password-toggle" data-password-target="loginPassword" aria-label="Mostrar senha">◉</button></div>
+                    <div class="password-field"><input id="loginPassword" type="password" placeholder="Sua senha" required><button type="button" class="password-toggle" data-password-target="loginPassword" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div>
                     <a href="#" class="text-link resend-link" id="resendConfirmation">Reenviar confirmação de e-mail</a>
                     <button class="primary-button" type="submit">Entrar <span>→</span></button>
                 </form>
@@ -54,7 +54,7 @@
                     <label for="signupEmail">E-mail</label>
                     <input id="signupEmail" type="email" placeholder="voce@email.com" required>
                     <label for="signupPassword">Crie uma senha</label>
-                    <div class="password-field"><input id="signupPassword" type="password" placeholder="Mínimo de 6 caracteres" minlength="6" required><button type="button" class="password-toggle" data-password-target="signupPassword" aria-label="Mostrar senha">◉</button></div>
+                    <div class="password-field"><input id="signupPassword" type="password" placeholder="Mínimo de 6 caracteres" minlength="6" required><button type="button" class="password-toggle" data-password-target="signupPassword" aria-label="Mostrar senha"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div>
                     <button class="primary-button" type="submit">Criar minha conta <span>→</span></button>
                 </form>
 
