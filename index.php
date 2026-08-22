@@ -44,6 +44,7 @@
                     <input id="loginEmail" type="text" placeholder="progtenis ou voce@email.com" required>
                     <div class="label-row"><label for="loginPassword">Senha</label><a href="#" class="text-link">Esqueci minha senha</a></div>
                     <input id="loginPassword" type="password" placeholder="Sua senha" required>
+                    <a href="#" class="text-link resend-link" id="resendConfirmation">Reenviar confirmação de e-mail</a>
                     <button class="primary-button" type="submit">Entrar <span>→</span></button>
                 </form>
 
