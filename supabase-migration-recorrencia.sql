@@ -5,21 +5,28 @@ update public.profiles
 set role = 'admin'
 where id in (select id from auth.users where lower(email) = 'programacaotennis@gmail.com');
 
+alter table public.profiles add column if not exists email text;
+update public.profiles p set email = u.email from auth.users u where u.id = p.id and p.email is null;
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, full_name, role)
+  insert into public.profiles (id, full_name, email, role)
   values (
     new.id,
     coalesce(new.raw_user_meta_data ->> 'full_name', new.email),
+    new.email,
     case when lower(new.email) = 'programacaotennis@gmail.com' then 'admin'::public.user_role else 'member'::public.user_role end
   );
   return new;
 end;
 $$;
+
+drop policy if exists "admins manage profile roles" on public.profiles;
+create policy "admins manage profile roles" on public.profiles for update to authenticated using (public.is_admin()) with check (public.is_admin());
 
 alter table public.bookings
   add column if not exists recurrence_type text not null default 'once'

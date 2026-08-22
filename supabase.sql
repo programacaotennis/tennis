@@ -4,6 +4,7 @@ create type public.user_role as enum ('member', 'admin');
 create table public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text not null,
+  email text,
   role public.user_role not null default 'member',
   created_at timestamptz not null default now()
 );
@@ -45,8 +46,8 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, full_name)
-  values (new.id, coalesce(new.raw_user_meta_data ->> 'full_name', new.email));
+  insert into public.profiles (id, full_name, email)
+  values (new.id, coalesce(new.raw_user_meta_data ->> 'full_name', new.email), new.email);
   if lower(new.email) = 'programacaotennis@gmail.com' then
     update public.profiles set role = 'admin' where id = new.id;
   end if;
@@ -77,6 +78,7 @@ alter table public.availability enable row level security;
 alter table public.bookings enable row level security;
 
 create policy "profiles are visible to authenticated users" on public.profiles for select to authenticated using (true);
+create policy "admins manage profile roles" on public.profiles for update to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy "members can view active courts" on public.courts for select to authenticated using (active = true);
 create policy "members can view availability" on public.availability for select to authenticated using (true);
 create policy "members view their bookings" on public.bookings for select to authenticated using (user_id = auth.uid());
