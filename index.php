@@ -73,7 +73,7 @@
                 <button class="nav-item" data-view="reservations"><span>✓</span> Minhas reservas</button>
                 <button class="nav-item admin-only" data-view="admin"><span>⌘</span> Administração</button>
             </nav>
-            <div class="sidebar-bottom"><div class="club-note"><span class="pulse-dot"></span><div><strong>Clube aberto</strong><small>Hoje, 06:00 — 22:00</small></div></div><button class="logout-button" id="logoutButton">Sair da conta <span>↗</span></button></div>
+            <div class="sidebar-bottom"><button class="logout-button" id="logoutButton">Sair da conta <span>↗</span></button></div>
         </aside>
 
         <section class="content-area">
@@ -89,7 +89,7 @@
             <div class="view" id="adminView"><div class="page-intro compact"><div><p class="eyebrow">ÁREA RESTRITA</p><h2>Painel do clube.</h2><p>Uma visão rápida da operação de hoje.</p></div><div><button class="outline-button" id="changeAccessButton">Alterar acesso</button><button class="primary-button small" id="newCourtButton">＋ Nova quadra</button></div></div><div class="admin-grid"><div class="stat-card"><span>RESERVAS HOJE</span><strong id="bookingCount">12</strong><small class="positive">↑ 18% esta semana</small></div><div class="stat-card"><span>QUADRAS ATIVAS</span><strong id="activeCourtCount">00</strong><small>todas operacionais</small></div><div class="stat-card"><span>TAXA DE OCUPAÇÃO</span><strong>68%</strong><small>últimos 7 dias</small></div></div><div class="admin-section"><div class="section-heading"><div><h3>Quadras e disponibilidade</h3><p>Configure os horários que os membros podem reservar.</p></div><span class="table-date">Disponibilidade diária</span></div><div class="court-admin-list" id="courtAdminList"></div></div><div class="admin-section members-section"><div class="section-heading"><div><h3>Usuários e administradores</h3><p>Escolha quem pode gerenciar o clube.</p></div></div><div class="member-list" id="memberList"></div></div></div>
         </section>
     </main>
-    <div class="toast" id="toast" role="status"></div>
+    <div class="court-modal hidden" id="courtModal" role="dialog" aria-modal="true" aria-labelledby="courtModalTitle"><div class="court-modal-card"><div class="court-modal-header"><div><p class="eyebrow">CONFIGURAÇÃO</p><h3 id="courtModalTitle">Nova quadra</h3><p>Informe os dados que serão exibidos aos membros.</p></div><button class="modal-close" id="closeCourtModal" type="button" aria-label="Fechar">×</button></div><form id="courtForm"><label for="courtName">Nome da quadra</label><input id="courtName" type="text" placeholder="Ex.: Quadra Central" required maxlength="60"><div class="modal-form-grid"><div><label for="courtSurface">Tipo de piso</label><select id="courtSurface"><option>Saibro</option><option>Rápida</option><option>Grama</option></select></div><div><label for="courtLocation">Localização</label><select id="courtLocation"><option>Externa</option><option>Coberta</option><option>Indoor</option></select></div></div><label class="modal-check"><input id="courtActive" type="checkbox" checked><span>Disponível para reservas</span></label><div class="court-modal-actions"><button class="outline-button" id="cancelCourtModal" type="button">Cancelar</button><button class="primary-button" id="saveCourtButton" type="submit">Salvar quadra <span>→</span></button></div></form></div></div><div class="toast" id="toast" role="status"></div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/app.js"></script>
 </body>
