@@ -6,6 +6,8 @@
 .avatar.has-image { background-position: center; background-size: cover; background-repeat: no-repeat; color: transparent; }
 @media (max-width: 900px) { .court-row { grid-template-columns: 6px 1fr !important; } .time-grid { grid-column: 2; grid-template-columns: repeat(8, 48px); overflow-x: auto; padding-bottom: 4px; } }
 .filled-summary select { appearance: auto; cursor: pointer; }
+.date-control input[type="date"] { display: block; width: 100%; margin-top: 5px; border: 0; background: transparent; color: var(--ink); font: inherit; font-weight: 700; }
+.date-control input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .75; }
 .recurrence-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .cancel-booking { margin-left: auto; white-space: nowrap; }
 .icon-button.has-notifications i { width: 8px; height: 8px; background: var(--orange); }

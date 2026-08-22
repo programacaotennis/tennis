@@ -48,6 +48,7 @@ declare
   recurrence_key uuid := gen_random_uuid();
 begin
   if auth.uid() is null then raise exception 'É necessário estar autenticado.'; end if;
+  if p_booking_date < current_date then raise exception 'Não é possível agendar uma data passada.'; end if;
   if p_recurrence_type not in ('once', 'daily', 'weekly', 'monthly') then raise exception 'Periodicidade inválida.'; end if;
   if p_recurrence_count < 1 or p_recurrence_count > 31 then raise exception 'A quantidade deve estar entre 1 e 31.'; end if;
   if p_start_time not in ('06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00') then raise exception 'Horário inválido.'; end if;
@@ -123,3 +124,16 @@ drop trigger if exists on_booking_cancelled on public.bookings;
 create trigger on_booking_cancelled
   after update of status on public.bookings
   for each row execute procedure public.notify_booking_cancellation();
+
+create or replace function public.get_booked_slots(p_booking_date date)
+returns table (court_id bigint, start_time time)
+language sql
+security definer
+set search_path = public
+as $$
+  select b.court_id, b.start_time
+  from public.bookings b
+  where b.booking_date = p_booking_date and b.status = 'confirmed';
+$$;
+
+grant execute on function public.get_booked_slots(date) to authenticated;
