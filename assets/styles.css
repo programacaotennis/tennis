@@ -33,6 +33,7 @@
   background-size: cover;
   background-repeat: no-repeat;
   color: transparent;
+  border-radius: 55px;
 }
 @media (max-width: 900px) {
   .court-row {
