@@ -158,8 +158,9 @@
               class="icon-button"
               id="notificationButton"
               title="Notificações"
+              aria-label="Abrir notificações"
             >
-              ♢<i></i>
+              <svg class="notification-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h17v11h-17z"/><path d="m4 7 8 6 8-6"/></svg>
             </button>
             <div class="user-menu">
               <div class="avatar" id="userAvatar">VC</div>
@@ -172,7 +173,7 @@
         </header>
 
         <nav class="mobile-nav" aria-label="Navegação mobile"><button class="mobile-nav-item active" data-view="booking"><span>◷</span>Reservar</button><button class="mobile-nav-item" data-view="reservations"><span>✓</span>Minhas reservas</button><button class="mobile-nav-item admin-only" data-view="admin"><span>⌘</span>Admin</button><button class="mobile-nav-item" id="mobileLogout"><span>↗</span>Sair</button></nav>
-        <div class="notification-panel hidden" id="notificationPanel"><div class="notification-panel-header"><strong>Notificações</strong><button type="button" id="closeNotifications" aria-label="Fechar notificações">×</button></div><div id="notificationList"></div><div class="notification-panel-footer"><button type="button" id="enablePushButton">Ativar alertas neste dispositivo</button></div></div>
+        <div class="notification-panel hidden" id="notificationPanel"><div class="notification-panel-header"><strong>Notificações</strong><div><button type="button" class="clear-notifications" id="clearNotificationsButton">Limpar</button><button type="button" id="closeNotifications" aria-label="Fechar notificações">×</button></div></div><div id="notificationList"></div><div class="notification-panel-footer"><button type="button" id="enablePushButton">Ativar alertas neste dispositivo</button></div></div>
         <div class="view active-view" id="bookingView">
           <div class="page-intro">
             <div>
@@ -365,7 +366,9 @@
             ></label
           >
           <div class="court-modal-actions">
-            <button class="outline-button" id="cancelCourtModal" type="button">
+            <button class="danger-outline-button hidden" id="deleteCourtButton" type="button">
+              Excluir quadra
+            </button><button class="outline-button" id="cancelCourtModal" type="button">
               Cancelar</button
             ><button class="primary-button" id="saveCourtButton" type="submit">
               Salvar quadra <span>→</span>

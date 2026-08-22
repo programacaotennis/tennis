@@ -8,6 +8,17 @@ where id in (select id from auth.users where lower(email) = 'programacaotennis@g
 alter table public.profiles add column if not exists email text;
 update public.profiles p set email = u.email from auth.users u where u.id = p.id and p.email is null;
 
+-- Recupera contas criadas antes do gatilho de perfil estar ativo.
+insert into public.profiles (id, full_name, email, role)
+select
+  u.id,
+  coalesce(u.raw_user_meta_data ->> 'full_name', u.email),
+  u.email,
+  case when lower(u.email) = 'programacaotennis@gmail.com' then 'admin'::public.user_role else 'member'::public.user_role end
+from auth.users u
+left join public.profiles p on p.id = u.id
+where p.id is null;
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
