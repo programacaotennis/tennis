@@ -1,35 +1,91 @@
-const demoCourts = [
-    { id: 1, name: 'Quadra 1', type: 'Saibro', detail: 'Externa', slots: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00'] },
-    { id: 2, name: 'Quadra 2', type: 'Saibro', detail: 'Externa', slots: ['06:00', '07:00', '08:00', '09:00', '10:00'] },
-    { id: 3, name: 'Quadra 3', type: 'Rápida', detail: 'Coberta', slots: ['07:00', '08:00', '09:00', '11:00', '12:00'] },
-    { id: 4, name: 'Quadra 4', type: 'Saibro', detail: 'Externa', slots: ['06:00', '08:00', '09:00', '10:00', '11:00'] }
-];
+const supabaseUrl = 'https://uakjpmkkcxbmizfsxdqj.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVha2pwbWtrY3hibWl6ZnN4ZHFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODczODM4MzUsImV4cCI6MjEwMjk1OTgzNX0.thBY1EhLkUop9kTuv6ZwfXG1C4AcQ2hOEI8p8yxsCz8';
+const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+const bookingSlots = ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
 let selectedCourt = null;
 let selectedTime = null;
-let currentDate = new Date(2026, 7, 24);
-let reservations = JSON.parse(localStorage.getItem('tennisReservations') || '[]');
-
+let currentUser = null;
+let currentProfile = null;
+let courts = [];
+const today = new Date();
+let currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
+
 function showToast(message) { const toast = $('#toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000); }
 function formatDate(date) { return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).format(date).replace('.', ''); }
-function dateLabel(date) { const label = new Intl.DateTimeFormat('pt-BR', { weekday: 'short', day: 'numeric', month: 'long' }).format(date).replace('.', ''); return date.getDate() === 24 && date.getMonth() === 7 ? `Hoje, ${label.split(',').slice(1).join(',')}` : label; }
-function renderCourts() {
-    $('#selectedDateLabel').textContent = dateLabel(currentDate);
-    $('#courtList').innerHTML = demoCourts.map((court) => `<article class="court-row ${selectedCourt?.id === court.id ? 'selected' : ''}"><span class="court-color"></span><div><strong class="court-name">${court.name}</strong><span class="court-meta">${court.type} · ${court.detail}</span></div><div class="time-grid">${court.slots.map((slot, index) => `<button class="time-slot ${index === 1 && court.id === 2 ? 'unavailable' : ''} ${selectedCourt?.id === court.id && selectedTime === slot ? 'selected' : ''}" data-court="${court.id}" data-time="${slot}" ${index === 1 && court.id === 2 ? 'disabled' : ''}>${slot}</button>`).join('')}</div></article>`).join('');
-    $$('.time-slot').forEach((button) => button.addEventListener('click', () => { selectedCourt = demoCourts.find((court) => court.id === Number(button.dataset.court)); selectedTime = button.dataset.time; renderCourts(); updateSummary(); }));
+function dateLabel(date) { const label = new Intl.DateTimeFormat('pt-BR', { weekday: 'short', day: 'numeric', month: 'long' }).format(date).replace('.', ''); return label.charAt(0).toUpperCase() + label.slice(1); }
+function dateValue(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }
+function endTime(startTime) { return `${String(Number(startTime.slice(0, 2)) + 2).padStart(2, '0')}:00`; }
+function recurrenceDates(startDate, type, count) { const dates = []; const date = new Date(`${startDate}T12:00:00`); for (let index = 0; index < count; index += 1) { dates.push(dateValue(date)); if (type === 'daily') date.setDate(date.getDate() + 1); if (type === 'weekly') date.setDate(date.getDate() + 7); if (type === 'monthly') date.setMonth(date.getMonth() + 1); } return dates; }
+
+async function loadCourts() {
+    const { data, error } = await supabaseClient.from('courts').select('id, name, surface, location').eq('active', true).order('id');
+    if (error) throw error;
+    courts = data || [];
 }
-function updateSummary() { const filled = Boolean(selectedCourt && selectedTime); $('#emptySummary').classList.toggle('hidden', filled); $('#filledSummary').classList.toggle('hidden', !filled); if (filled) { $('#summaryCourt').textContent = selectedCourt.name; $('#summaryType').textContent = `${selectedCourt.type} · ${selectedCourt.detail}`; $('#summaryDate').textContent = formatDate(currentDate); $('#summaryTime').textContent = `${selectedTime} — ${String(Number(selectedTime.split(':')[0]) + 1).padStart(2, '0')}:00`; } }
-function renderReservations() { const list = $('#reservationList'); list.innerHTML = reservations.length ? reservations.map((reservation) => `<div class="reservation-item"><div><strong>${reservation.court}</strong><small>${reservation.type} · ${reservation.date}</small></div><time>${reservation.time}</time></div>`).join('') : '<div class="empty-summary"><span>＋</span><p>Você ainda não tem reservas.<br>Seu próximo jogo começa com um clique.</p></div>'; }
-function renderAdminCourts() { $('#courtAdminList').innerHTML = demoCourts.map((court) => `<div class="court-admin-row"><span class="admin-court-icon">⌂</span><div><strong>${court.name}</strong><small>${court.type} · ${court.detail}</small></div><span class="admin-court-state">Ativa</span><button class="outline-button">Editar</button></div>`).join(''); }
-function openApp(isAdmin, name = 'Visitante') { $('#authScreen').classList.add('hidden'); $('#appScreen').classList.remove('hidden'); $('#userName').textContent = name; $('#userRole').textContent = isAdmin ? 'Administrador' : 'Membro'; $('#userAvatar').textContent = name.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase(); $$('.admin-only').forEach((item) => item.classList.toggle('hidden', !isAdmin)); renderCourts(); renderReservations(); renderAdminCourts(); }
+
+async function loadBookedSlots() {
+    const { data, error } = await supabaseClient.from('bookings').select('court_id, start_time').eq('booking_date', dateValue(currentDate)).eq('status', 'confirmed');
+    if (error) throw error;
+    return new Set((data || []).map((booking) => `${booking.court_id}-${booking.start_time.slice(0, 5)}`));
+}
+
+async function renderCourts() {
+    $('#selectedDateLabel').textContent = dateLabel(currentDate);
+    const list = $('#courtList');
+    if (!courts.length) { list.innerHTML = '<div class="empty-summary"><p>Nenhuma quadra ativa foi cadastrada.</p></div>'; return; }
+    try {
+        const bookedSlots = await loadBookedSlots();
+        list.innerHTML = courts.map((court) => `<article class="court-row ${selectedCourt?.id === court.id ? 'selected' : ''}"><span class="court-color"></span><div><strong class="court-name">${court.name}</strong><span class="court-meta">${court.surface} · ${court.location}</span></div><div class="time-grid">${bookingSlots.map((slot) => { const unavailable = bookedSlots.has(`${court.id}-${slot}`); return `<button class="time-slot ${unavailable ? 'unavailable' : ''} ${selectedCourt?.id === court.id && selectedTime === slot ? 'selected' : ''}" data-court="${court.id}" data-time="${slot}" ${unavailable ? 'disabled' : ''}>${slot}</button>`; }).join('')}</div></article>`).join('');
+        $$('.time-slot:not(:disabled)').forEach((button) => button.addEventListener('click', () => { selectedCourt = courts.find((court) => court.id === Number(button.dataset.court)); selectedTime = button.dataset.time; renderCourts(); updateSummary(); }));
+    } catch (error) { list.innerHTML = '<div class="empty-summary"><p>Não foi possível carregar os horários.</p></div>'; showToast(error.message); }
+}
+
+function updateSummary() {
+    const filled = Boolean(selectedCourt && selectedTime);
+    $('#emptySummary').classList.toggle('hidden', filled); $('#filledSummary').classList.toggle('hidden', !filled);
+    if (filled) { $('#summaryCourt').textContent = selectedCourt.name; $('#summaryType').textContent = `${selectedCourt.surface} · ${selectedCourt.location}`; $('#summaryDate').textContent = formatDate(currentDate); $('#summaryTime').textContent = `${selectedTime} — ${endTime(selectedTime)}`; }
+}
+
+async function renderReservations() {
+    const list = $('#reservationList');
+    const { data, error } = await supabaseClient.from('bookings').select('booking_date, start_time, end_time, courts(name, surface, location)').eq('user_id', currentUser.id).eq('status', 'confirmed').order('booking_date').order('start_time');
+    if (error) { showToast(error.message); return; }
+    list.innerHTML = data?.length ? data.map((reservation) => `<div class="reservation-item"><div><strong>${reservation.courts.name}</strong><small>${reservation.courts.surface} · ${reservation.courts.location} · ${reservation.booking_date}</small></div><time>${reservation.start_time.slice(0, 5)} — ${reservation.end_time.slice(0, 5)}</time></div>`).join('') : '<div class="empty-summary"><span>＋</span><p>Você ainda não tem reservas.<br>Seu próximo jogo começa com um clique.</p></div>';
+}
+
+function renderAdminCourts() { $('#courtAdminList').innerHTML = courts.map((court) => `<div class="court-admin-row"><span class="admin-court-icon">⌂</span><div><strong>${court.name}</strong><small>${court.surface} · ${court.location}</small></div><span class="admin-court-state">Ativa</span></div>`).join(''); }
+
+async function openApp(profile) {
+    currentProfile = profile;
+    $('#authScreen').classList.add('hidden'); $('#appScreen').classList.remove('hidden');
+    const name = profile.full_name || currentUser.email.split('@')[0];
+    $('#userName').textContent = name; $('#userRole').textContent = profile.role === 'admin' ? 'Administrador' : 'Membro'; const avatar = $('#userAvatar'); avatar.textContent = name.split(' ').map((part) => part[0]).slice(0, 2).join('').toUpperCase(); const avatarUrl = currentUser.user_metadata?.avatar_url || currentUser.user_metadata?.picture; if (avatarUrl) { avatar.textContent = ''; avatar.style.backgroundImage = `url("${avatarUrl}")`; avatar.classList.add('has-image'); }
+    $$('.admin-only').forEach((item) => item.classList.toggle('hidden', profile.role !== 'admin'));
+    try { await loadCourts(); await renderCourts(); await renderReservations(); renderAdminCourts(); } catch (error) { showToast(error.message); }
+}
+
+async function loadSession() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+    currentUser = session.user;
+    const { data: profile, error } = await supabaseClient.from('profiles').select('full_name, role').eq('id', currentUser.id).single();
+    if (error) { showToast(error.message); return; }
+    await openApp(profile);
+}
+
 $$('[data-auth-tab]').forEach((tab) => tab.addEventListener('click', () => { $$('[data-auth-tab]').forEach((button) => button.classList.remove('active')); tab.classList.add('active'); $('#loginForm').classList.toggle('active-form', tab.dataset.authTab === 'login'); $('#signupForm').classList.toggle('active-form', tab.dataset.authTab === 'signup'); }));
-$('#loginForm').addEventListener('submit', (event) => { event.preventDefault(); const email = $('#loginEmail').value; openApp(email.toLowerCase() === 'admin@programacaotenis.com', email.toLowerCase() === 'admin@programacaotenis.com' ? 'Marina Costa' : email.split('@')[0]); });
-$('#signupForm').addEventListener('submit', (event) => { event.preventDefault(); openApp(false, $('#signupName').value); showToast('Conta criada. Bem-vindo ao clube!'); });
-$('#googleButton').addEventListener('click', () => showToast('Login Google pronto para conectar ao Supabase Auth.'));
-$('#logoutButton').addEventListener('click', () => { $('#appScreen').classList.add('hidden'); $('#authScreen').classList.remove('hidden'); });
+$('#loginForm').addEventListener('submit', async (event) => { event.preventDefault(); const login = $('#loginEmail').value.trim().toLowerCase(); const email = login === 'progtenis' ? 'progtenis@programacaotenis.com' : login; const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: $('#loginPassword').value }); if (error) { showToast(error.message); return; } currentUser = data.user; const { data: profile } = await supabaseClient.from('profiles').select('full_name, role').eq('id', currentUser.id).single(); await openApp(profile); });
+$('#signupForm').addEventListener('submit', async (event) => { event.preventDefault(); const name = $('#signupName').value.trim(); const { data, error } = await supabaseClient.auth.signUp({ email: $('#signupEmail').value.trim(), password: $('#signupPassword').value, options: { data: { full_name: name } } }); if (error) { showToast(error.message); return; } if (!data.session) { showToast('Conta criada. Confirme seu e-mail para entrar.'); return; } currentUser = data.user; await openApp({ full_name: name, role: 'member' }); });
+$('#googleButton').addEventListener('click', async () => { const { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } }); if (error) showToast(error.message); });
+$('.text-link').addEventListener('click', async (event) => { event.preventDefault(); const email = $('#loginEmail').value.trim(); if (!email) { showToast('Informe seu e-mail para recuperar a senha.'); return; } const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin }); showToast(error ? error.message : 'Enviamos o link de recuperação para seu e-mail.'); });
+$('#logoutButton').addEventListener('click', async () => { await supabaseClient.auth.signOut(); currentUser = null; $('#appScreen').classList.add('hidden'); $('#authScreen').classList.remove('hidden'); });
 $$('.nav-item').forEach((item) => item.addEventListener('click', () => { $$('.nav-item').forEach((button) => button.classList.remove('active')); item.classList.add('active'); $$('.view').forEach((view) => view.classList.remove('active-view')); $(`#${item.dataset.view}View`).classList.add('active-view'); }));
-$('#prevDay').addEventListener('click', () => { currentDate.setDate(currentDate.getDate() - 1); selectedCourt = null; selectedTime = null; renderCourts(); updateSummary(); });
-$('#nextDay').addEventListener('click', () => { currentDate.setDate(currentDate.getDate() + 1); selectedCourt = null; selectedTime = null; renderCourts(); updateSummary(); });
-$('#confirmBooking').addEventListener('click', () => { reservations.push({ court: selectedCourt.name, type: `${selectedCourt.type} · ${selectedCourt.detail}`, date: formatDate(currentDate), time: `${selectedTime} — ${String(Number(selectedTime.split(':')[0]) + 1).padStart(2, '0')}:00` }); localStorage.setItem('tennisReservations', JSON.stringify(reservations)); renderReservations(); showToast('Reserva confirmada com sucesso!'); selectedCourt = null; selectedTime = null; renderCourts(); updateSummary(); });
-$('#newCourtButton').addEventListener('click', () => showToast('Formulário de nova quadra será conectado ao Supabase.'));
+$('#prevDay').addEventListener('click', async () => { currentDate.setDate(currentDate.getDate() - 1); selectedCourt = null; selectedTime = null; await renderCourts(); updateSummary(); });
+$('#nextDay').addEventListener('click', async () => { currentDate.setDate(currentDate.getDate() + 1); selectedCourt = null; selectedTime = null; await renderCourts(); updateSummary(); });
+$('#confirmBooking').addEventListener('click', async () => { if (!selectedCourt || !selectedTime || !currentUser) return; const button = $('#confirmBooking'); button.disabled = true; button.querySelector('span').textContent = '...'; const recurrenceType = $('#recurrenceType').value; const recurrenceCount = recurrenceType === 'once' ? 1 : Math.max(1, Math.min(31, Number($('#recurrenceCount').value) || 1)); const { error } = await supabaseClient.rpc('create_recurring_booking', { p_court_id: selectedCourt.id, p_booking_date: dateValue(currentDate), p_start_time: selectedTime, p_recurrence_type: recurrenceType, p_recurrence_count: recurrenceCount }); button.disabled = false; button.querySelector('span').textContent = '→'; if (error) { showToast(error.code === '42883' ? 'Execute a migração de recorrência no Supabase.' : error.message); await renderCourts(); return; } showToast(recurrenceCount > 1 ? 'Reservas recorrentes confirmadas!' : 'Reserva confirmada com sucesso!'); selectedCourt = null; selectedTime = null; $('#recurrenceType').value = 'once'; $('#recurrenceCount').value = 1; await renderCourts(); updateSummary(); await renderReservations(); });
+$('#newCourtButton').addEventListener('click', async () => { if (!currentProfile || currentProfile.role !== 'admin') return; const name = window.prompt('Nome da quadra:'); if (!name?.trim()) return; const surface = window.prompt('Tipo de piso:', 'Saibro'); const location = window.prompt('Localização:', 'Externa'); const { data: court, error } = await supabaseClient.from('courts').insert({ name: name.trim(), surface: surface?.trim() || 'Saibro', location: location?.trim() || 'Externa' }).select('id').single(); if (error) { showToast(error.message); return; } const availability = [0, 1, 2, 3, 4, 5, 6].flatMap((day) => bookingSlots.map((start) => ({ court_id: court.id, day_of_week: day, start_time: start, end_time: endTime(start) }))); const { error: availabilityError } = await supabaseClient.from('availability').insert(availability); if (availabilityError) { showToast(availabilityError.message); return; } showToast('Quadra criada com sucesso!'); await loadCourts(); await renderCourts(); renderAdminCourts(); });
+$('#changeAccessButton')?.addEventListener('click', async () => { const email = window.prompt('Novo e-mail de acesso:', currentUser.email); const password = window.prompt('Nova senha (deixe vazio para manter a atual):'); const updates = {}; if (email?.trim() && email.trim() !== currentUser.email) updates.email = email.trim(); if (password) updates.password = password; if (!Object.keys(updates).length) return; const { error } = await supabaseClient.auth.updateUser(updates); if (error) { showToast(error.message); return; } showToast(updates.email ? 'E-mail atualizado. Confirme-o na sua caixa de entrada.' : 'Senha atualizada com sucesso.'); });
+supabaseClient.auth.onAuthStateChange((_event, session) => { if (session && !currentUser) { currentUser = session.user; loadSession(); } });
+loadSession();

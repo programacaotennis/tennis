@@ -1,0 +1,87 @@
+-- Execute uma vez no SQL Editor do Supabase.
+-- Cria reservas recorrentes como ocorrencias individuais e aplica o limite mensal.
+
+update public.profiles
+set role = 'admin'
+where id in (select id from auth.users where lower(email) = 'progtenis@programacaotenis.com');
+
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.profiles (id, full_name, role)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data ->> 'full_name', new.email),
+    case when lower(new.email) = 'progtenis@programacaotenis.com' then 'admin'::public.user_role else 'member'::public.user_role end
+  );
+  return new;
+end;
+$$;
+
+alter table public.bookings
+  add column if not exists recurrence_type text not null default 'once'
+    check (recurrence_type in ('once', 'daily', 'weekly', 'monthly')),
+  add column if not exists recurrence_count integer not null default 1
+    check (recurrence_count between 1 and 31),
+  add column if not exists recurrence_id uuid;
+
+create or replace function public.create_recurring_booking(
+  p_court_id bigint,
+  p_booking_date date,
+  p_start_time time,
+  p_recurrence_type text,
+  p_recurrence_count integer
+)
+returns void
+language plpgsql
+security invoker
+set search_path = public
+as $$
+declare
+  occurrence_date date := p_booking_date;
+  occurrence_index integer;
+  previous_date date;
+  next_month_start date;
+  recurrence_key uuid := gen_random_uuid();
+begin
+  if auth.uid() is null then raise exception 'É necessário estar autenticado.'; end if;
+  if p_recurrence_type not in ('once', 'daily', 'weekly', 'monthly') then raise exception 'Periodicidade inválida.'; end if;
+  if p_recurrence_count < 1 or p_recurrence_count > 31 then raise exception 'A quantidade deve estar entre 1 e 31.'; end if;
+  if p_start_time not in ('06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00') then raise exception 'Horário inválido.'; end if;
+  if not exists (select 1 from public.courts where id = p_court_id and active) then raise exception 'Quadra indisponível.'; end if;
+
+  for occurrence_index in 0..p_recurrence_count - 1 loop
+    occurrence_date := case p_recurrence_type
+      when 'daily' then p_booking_date + occurrence_index
+      when 'weekly' then p_booking_date + (occurrence_index * 7)
+      when 'monthly' then (p_booking_date + (occurrence_index || ' month')::interval)::date
+      else p_booking_date
+    end;
+
+    if exists (select 1 from public.bookings where court_id = p_court_id and booking_date = occurrence_date and start_time = p_start_time and status = 'confirmed') then
+      raise exception 'O horário já está reservado em %.', occurrence_date;
+    end if;
+
+    next_month_start := date_trunc('month', occurrence_date)::date;
+    if extract(month from occurrence_date) <> extract(month from (occurrence_date - interval '1 month')) then
+      if (select count(*) from public.bookings where user_id = auth.uid() and court_id = p_court_id and start_time = p_start_time and status = 'confirmed' and booking_date between next_month_start - 30 and next_month_start - 1) = 30 then
+        raise exception 'Este horário e esta quadra ficam indisponíveis para você neste mês após 30 dias consecutivos de uso.';
+      end if;
+    end if;
+  end loop;
+
+  for occurrence_index in 0..p_recurrence_count - 1 loop
+    occurrence_date := case p_recurrence_type
+      when 'daily' then p_booking_date + occurrence_index
+      when 'weekly' then p_booking_date + (occurrence_index * 7)
+      when 'monthly' then (p_booking_date + (occurrence_index || ' month')::interval)::date
+      else p_booking_date
+    end;
+    insert into public.bookings (court_id, user_id, booking_date, start_time, end_time, recurrence_type, recurrence_count, recurrence_id)
+    values (p_court_id, auth.uid(), occurrence_date, p_start_time, p_start_time + interval '2 hours', p_recurrence_type, p_recurrence_count, recurrence_key);
+  end loop;
+end;
+$$;

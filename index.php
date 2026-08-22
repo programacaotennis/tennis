@@ -40,8 +40,8 @@
                 </div>
 
                 <form id="loginForm" class="auth-form active-form">
-                    <label for="loginEmail">E-mail</label>
-                    <input id="loginEmail" type="email" placeholder="voce@email.com" required>
+                    <label for="loginEmail">Login ou e-mail</label>
+                    <input id="loginEmail" type="text" placeholder="progtenis ou voce@email.com" required>
                     <div class="label-row"><label for="loginPassword">Senha</label><a href="#" class="text-link">Esqueci minha senha</a></div>
                     <input id="loginPassword" type="password" placeholder="Sua senha" required>
                     <button class="primary-button" type="submit">Entrar <span>→</span></button>
@@ -59,7 +59,7 @@
 
                 <div class="divider"><span>ou continue com</span></div>
                 <button class="google-button" type="button" id="googleButton"><span class="google-g">G</span> Continuar com Google</button>
-                <p class="demo-hint">Demo: use <strong>admin@programacaotenis.com</strong> com qualquer senha para visualizar o painel admin.</p>
+                <p class="demo-hint">O acesso administrativo usa o login <strong>progtenis</strong>.</p>
             </div>
         </section>
     </main>
@@ -80,7 +80,7 @@
 
             <div class="view active-view" id="bookingView">
                 <div class="page-intro"><div><p class="eyebrow">RESERVE SEU MOMENTO</p><h2>Escolha quando jogar.</h2><p>Selecione uma quadra e um horário disponível para confirmar sua partida.</p></div><div class="date-control"><button id="prevDay">‹</button><div><small>DATA DA RESERVA</small><strong id="selectedDateLabel">Hoje, 24 de agosto</strong></div><button id="nextDay">›</button></div></div>
-                <div class="booking-layout"><div class="court-list" id="courtList"></div><aside class="summary-panel"><div class="summary-top"><span class="eyebrow">SUA RESERVA</span><span class="summary-icon">◒</span></div><div id="emptySummary" class="empty-summary"><span>＋</span><p>Escolha uma quadra<br>e um horário para começar.</p></div><div id="filledSummary" class="filled-summary hidden"><div class="summary-court"><div class="court-thumb"></div><div><strong id="summaryCourt">Quadra 1</strong><small id="summaryType">Saibro · Externa</small></div></div><div class="summary-line"><span>Data</span><strong id="summaryDate">24 ago, 2026</strong></div><div class="summary-line"><span>Horário</span><strong id="summaryTime">08:00 — 09:00</strong></div><button class="primary-button" id="confirmBooking">Confirmar reserva <span>→</span></button></div><div class="summary-foot">Cancelamento gratuito até 2h antes do horário.</div></aside></div>
+                <div class="booking-layout"><div class="court-list" id="courtList"></div><aside class="summary-panel"><div class="summary-top"><span class="eyebrow">SUA RESERVA</span><span class="summary-icon">◒</span></div><div id="emptySummary" class="empty-summary"><span>＋</span><p>Escolha uma quadra<br>e um horário para começar.</p></div><div id="filledSummary" class="filled-summary hidden"><div class="summary-court"><div class="court-thumb"></div><div><strong id="summaryCourt">Quadra 1</strong><small id="summaryType">Saibro · Externa</small></div></div><div class="summary-line"><span>Data</span><strong id="summaryDate">24 ago, 2026</strong></div><div class="summary-line"><span>Horário</span><strong id="summaryTime">08:00 — 10:00</strong></div><label for="recurrenceType">Periodicidade</label><select id="recurrenceType"><option value="once">Somente este dia</option><option value="daily">Diária</option><option value="weekly">Semanal</option><option value="monthly">Mensal</option></select><label for="recurrenceCount">Quantidade de ocorrências</label><input id="recurrenceCount" type="number" min="1" max="31" value="1"><button class="primary-button" id="confirmBooking">Confirmar reserva <span>→</span></button></div><div class="summary-foot">Cada ocorrência dura 2 horas. Reservas repetidas dependem da disponibilidade.</div></aside></div>
             </div>
 
             <div class="view" id="reservationsView"><div class="page-intro compact"><div><p class="eyebrow">SUA AGENDA</p><h2>Minhas reservas.</h2><p>Confira seus próximos encontros em quadra.</p></div></div><div class="reservation-list" id="reservationList"></div></div>

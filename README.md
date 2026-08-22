@@ -13,7 +13,7 @@ php -S localhost:8080
 
 3. Abra `http://localhost:8080/index.html`.
 
-O modo demo permite testar o fluxo sem backend. Para visualizar a area administrativa, use `admin@programacaotenis.com` com qualquer senha. As reservas de membro ficam no `localStorage` do navegador nesta primeira etapa.
+O app usa o Supabase para autenticação, quadras e reservas. O administrador precisa ter o papel `admin` na tabela `profiles`.
 
 Para publicar sem PHP, use `index.html` em Cloudflare Pages, Netlify ou GitHub Pages.
 
@@ -23,13 +23,16 @@ Para publicar sem PHP, use `index.html` em Cloudflare Pages, Netlify ou GitHub P
 2. Execute o arquivo `supabase.sql` no SQL Editor.
 3. Ative Email/Password e Google em **Authentication > Providers**.
 4. Promova o primeiro usuario a administrador usando o `update` comentado no final do SQL.
-5. Na proxima etapa, substitua o modo demo do `assets/app.js` por `supabase.auth.signInWithPassword`, `signUp`, `signInWithOAuth` e consultas nas tabelas criadas.
+5. Se o banco já existia, execute também `supabase-migration-horarios.sql` para aplicar a grade diária de 06:00 a 22:00 em blocos de 2 horas.
+6. Execute `supabase-migration-recorrencia.sql` para habilitar reservas diária, semanal e mensal e o limite de 30 dias consecutivos.
+
+O administrador inicial usa o login `progtenis` e o e-mail técnico `progtenis@programacaotenis.com`. Ao cadastrar essa conta pelo formulário, ela recebe automaticamente o papel `admin`; a senha deve ser definida no cadastro. O painel permite alterar e-mail e senha depois. A criação de usuário não pode ser feita por SQL sem expor a chave administrativa do Supabase.
 
 ## Escopo da primeira entrega
 
 - Login, cadastro manual e ponto de entrada para Google.
 - Perfil de membro e perfil administrador.
 - Selecao de quadra, data e horario.
-- Confirmacao de reserva com persistencia local para prototipacao.
+- Confirmação de reserva persistida no Supabase, com bloqueio de horário ocupado.
 - Painel administrativo com quadras, disponibilidade e administradores.
 - Esquema inicial com RLS para `profiles`, `courts`, `availability` e `bookings`.
