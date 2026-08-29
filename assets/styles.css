@@ -1595,6 +1595,11 @@ h1 em {
   .mobile-nav-item.active span { color: var(--ink); }
   .mobile-nav-item:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
   .content-area { padding-bottom: 100px; }
+  .toast {
+    right: 16px;
+    bottom: 116px;
+    z-index: 30;
+  }
 }
 
 /* Compact authentication layout: keeps the Google option in the first view. */
