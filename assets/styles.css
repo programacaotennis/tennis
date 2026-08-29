@@ -925,6 +925,33 @@ h1 em {
   gap: 12px;
   max-width: 800px;
 }
+.court-booking-list {
+  display: grid;
+  gap: 12px;
+  max-width: 940px;
+}
+.court-booking-item {
+  display: grid;
+  grid-template-columns: 190px minmax(180px, 1fr) minmax(180px, 1fr);
+  gap: 24px;
+  align-items: center;
+  padding: 18px 22px;
+  border-left: 5px solid var(--mint);
+  background: var(--white);
+}
+.court-booking-item strong,
+.court-booking-item small,
+.court-booking-date span,
+.court-booking-member span {
+  display: block;
+}
+.court-booking-item small,
+.court-booking-date span,
+.court-booking-member span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
 .reservation-item {
   display: flex;
   align-items: center;
@@ -942,9 +969,9 @@ h1 em {
   font-size: 11px;
   margin-top: 5px;
 }
-.reservation-item time {
-  font-weight: 700;
-}
+  .reservation-item time {
+    font-weight: 700;
+  }
 .admin-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1256,7 +1283,7 @@ h1 em {
   .sidebar {
     display: none;
   }
-  .mobile-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: rgba(255, 255, 255, .96); box-shadow: 0 -8px 25px rgba(1, 37, 44, .08); }
+  .mobile-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 15; display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: rgba(255, 255, 255, .96); box-shadow: 0 -8px 25px rgba(1, 37, 44, .08); }
   .mobile-nav-item { display: grid; gap: 3px; justify-items: center; padding: 7px 3px; background: transparent; color: var(--muted); font-size: 10px; }
   .mobile-nav-item span { color: var(--ink); font-size: 16px; }
   .mobile-nav-item.active { background: var(--mint-pale); color: var(--ink); font-weight: 700; }
@@ -1304,6 +1331,12 @@ h1 em {
   .admin-grid {
     grid-template-columns: 1fr 1fr;
   }
+  .court-booking-item {
+    grid-template-columns: 150px 1fr;
+  }
+  .court-booking-member {
+    grid-column: 2;
+  }
   .stat-card:last-child {
     grid-column: span 2;
   }
@@ -1336,6 +1369,14 @@ h1 em {
   }
   .court-row {
     padding: 16px 12px;
+  }
+  .court-booking-item {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 16px;
+  }
+  .court-booking-member {
+    grid-column: auto;
   }
   .summary-panel {
     min-height: 230px;
