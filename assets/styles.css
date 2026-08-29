@@ -1240,6 +1240,13 @@ h1 em {
   transform: translateY(0);
   opacity: 1;
 }
+.toast.toast-error {
+  max-width: min(390px, calc(100vw - 32px));
+  border: 1px solid #e5a18f;
+  background: #fff0eb;
+  color: #a13c25;
+  font-weight: 700;
+}
 
 /* Notification center */
 .notification-panel {
