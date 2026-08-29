@@ -871,10 +871,18 @@ h1 em {
   color: var(--muted);
   margin: auto;
 }
-.empty-summary span {
+.scroll-to-courts {
+  margin-top: 3px;
+  padding: 0;
+  background: transparent;
   font-size: 31px;
   color: var(--mint);
   font-weight: 300;
+  line-height: 1;
+}
+.scroll-to-courts:hover {
+  color: var(--ink);
+  transform: translateY(3px);
 }
 .empty-summary p {
   font-size: 12px;
