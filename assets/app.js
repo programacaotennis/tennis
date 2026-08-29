@@ -25,7 +25,7 @@ const $$ = (selector) => [...document.querySelectorAll(selector)];
 
 $('#googleButton')?.addEventListener('click', async () => { const { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: authRedirectUrl, queryParams: { prompt: 'select_account' } } }); if (error) showToast(error.message); });
 
-function showToast(message) { const toast = $('#toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000); }
+function showToast(message, tone = 'default') { const toast = $('#toast'); toast.textContent = message; toast.classList.toggle('toast-error', tone === 'error'); toast.classList.add('show'); setTimeout(() => { toast.classList.remove('show'); toast.classList.remove('toast-error'); }, 6000); }
 function escapeHtml(value) { return String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])); }
 function urlBase64ToUint8Array(value) { const padding = '='.repeat((4 - (value.length % 4)) % 4); const base64 = (value + padding).replace(/-/g, '+').replace(/_/g, '/'); return Uint8Array.from(atob(base64), (character) => character.charCodeAt(0)); }
 function arrayBufferToBase64(buffer) { return btoa(String.fromCharCode(...new Uint8Array(buffer))); }
@@ -220,7 +220,7 @@ $('#confirmBooking').addEventListener('click', async () => {
     const occurrenceTotal = recurrenceType === 'monthly' ? monthlyOccurrences : recurrenceCount;
     const { count, error: countError } = await supabaseClient.from('bookings').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id).eq('court_id', selectedCourt.id).eq('start_time', selectedTime).eq('status', 'confirmed').gte('booking_date', dateValue(today));
     if (!countError && (count || 0) + occurrenceTotal > 30) {
-        showToast(`Limite de 30 dias: você já possui ${count || 0} reserva(s) futura(s) na ${selectedCourt.name} às ${selectedTime}.`);
+        showToast(`Limite de 30 dias: você já utilizou por 30 dias sequenciais essa ${selectedCourt.name} nesse horário das ${selectedTime}h.`, 'error');
         return;
     }
     const button = $('#confirmBooking');
