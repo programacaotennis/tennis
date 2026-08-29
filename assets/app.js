@@ -14,7 +14,8 @@ let availability = [];
 let notificationPollingId = null;
 let unreadNotificationCount = null;
 let notificationLoadErrorShown = false;
-let bookingToCancelId = null;
+let bookingIdsToCancel = [];
+let selectedReservationIds = new Set();
 const today = new Date();
 let currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 let bookingCalendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -98,7 +99,23 @@ async function renderReservations() {
     const list = $('#reservationList');
     const { data, error } = await supabaseClient.from('bookings').select('id, booking_date, start_time, end_time, courts(name, surface, location)').eq('user_id', currentUser.id).eq('status', 'confirmed').order('booking_date').order('start_time');
     if (error) { showToast(error.message); return; }
-    list.innerHTML = data?.length ? data.map((reservation) => `<div class="reservation-item"><div><strong>${reservation.courts.name}</strong><small>${reservation.courts.surface} · ${reservation.courts.location} · ${formatBookingDate(reservation.booking_date)}</small></div><time>${reservation.start_time.slice(0, 5)} — ${reservation.end_time.slice(0, 5)}</time><button class="outline-button cancel-booking" data-booking-id="${reservation.id}">Desistir</button></div>`).join('') : '<div class="empty-summary"><span>＋</span><p>Você ainda não tem reservas.<br>Seu próximo jogo começa com um clique.</p></div>';
+    const reservations = data || [];
+    const reservationIds = new Set(reservations.map((reservation) => String(reservation.id)));
+    selectedReservationIds = new Set([...selectedReservationIds].filter((id) => reservationIds.has(id)));
+    $('#reservationActions').classList.toggle('hidden', !reservations.length);
+    list.innerHTML = reservations.length ? reservations.map((reservation) => `<div class="reservation-item"><label class="reservation-select"><input class="reservation-selection" type="checkbox" data-booking-id="${reservation.id}" ${selectedReservationIds.has(String(reservation.id)) ? 'checked' : ''} aria-label="Selecionar reserva" /></label><div><strong>${reservation.courts.name}</strong><small>${reservation.courts.surface} · ${reservation.courts.location} · ${formatBookingDate(reservation.booking_date)}</small></div><time>${reservation.start_time.slice(0, 5)} — ${reservation.end_time.slice(0, 5)}</time><button class="outline-button cancel-booking" data-booking-id="${reservation.id}">Desistir</button></div>`).join('') : '<div class="empty-summary"><span>＋</span><p>Você ainda não tem reservas.<br>Seu próximo jogo começa com um clique.</p></div>';
+    updateReservationActions();
+}
+
+function updateReservationActions() {
+    const checkboxes = $$('.reservation-selection');
+    const selectedCount = selectedReservationIds.size;
+    const selectAll = $('#selectAllReservations');
+    selectAll.checked = Boolean(checkboxes.length && selectedCount === checkboxes.length);
+    selectAll.indeterminate = Boolean(selectedCount && selectedCount < checkboxes.length);
+    const button = $('#cancelSelectedBookings');
+    button.disabled = !selectedCount;
+    button.textContent = selectedCount ? `Cancelar selecionadas (${selectedCount})` : 'Cancelar selecionadas';
 }
 
 async function renderCourtBookings() {
@@ -174,11 +191,15 @@ $('#signupForm').addEventListener('submit', async (event) => { event.preventDefa
 $('.text-link').addEventListener('click', async (event) => { event.preventDefault(); const email = $('#loginEmail').value.trim(); if (!email) { showToast('Informe seu e-mail para recuperar a senha.'); return; } const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: authRedirectUrl }); showToast(error ? error.message : 'Enviamos o link de recuperação para seu e-mail.'); });
 $('#logoutButton').addEventListener('click', async () => { await supabaseClient.auth.signOut(); clearInterval(notificationPollingId); notificationPollingId = null; unreadNotificationCount = null; notificationLoadErrorShown = false; currentUser = null; document.body.classList.remove('app-open'); $('#appScreen').classList.add('hidden'); $('#authScreen').classList.remove('hidden'); });
 $('#mobileLogout').addEventListener('click', async () => { await supabaseClient.auth.signOut(); clearInterval(notificationPollingId); notificationPollingId = null; unreadNotificationCount = null; notificationLoadErrorShown = false; currentUser = null; document.body.classList.remove('app-open'); $('#appScreen').classList.add('hidden'); $('#authScreen').classList.remove('hidden'); });
-function closeCancelBookingModal() { $('#cancelBookingModal').classList.add('hidden'); bookingToCancelId = null; }
-$('#reservationList').addEventListener('click', (event) => { const button = event.target.closest('.cancel-booking'); if (!button) return; bookingToCancelId = button.dataset.bookingId; $('#cancelBookingModal').classList.remove('hidden'); $('#confirmCancelBooking').focus(); });
+function openCancelBookingModal(ids) { bookingIdsToCancel = ids; const count = ids.length; $('#cancelBookingTitle').textContent = count === 1 ? 'Desistir desta reserva?' : `Desistir de ${count} reservas?`; $('#cancelBookingMessage').textContent = count === 1 ? 'Este horário ficará disponível para outros membros e não poderá ser recuperado automaticamente.' : 'Todos estes horários ficarão disponíveis para outros membros e não poderão ser recuperados automaticamente.'; $('#cancelBookingModal').classList.remove('hidden'); $('#confirmCancelBooking').focus(); }
+function closeCancelBookingModal() { $('#cancelBookingModal').classList.add('hidden'); bookingIdsToCancel = []; }
+$('#reservationList').addEventListener('click', (event) => { const button = event.target.closest('.cancel-booking'); if (!button) return; openCancelBookingModal([button.dataset.bookingId]); });
+$('#reservationList').addEventListener('change', (event) => { const checkbox = event.target.closest('.reservation-selection'); if (!checkbox) return; if (checkbox.checked) selectedReservationIds.add(checkbox.dataset.bookingId); else selectedReservationIds.delete(checkbox.dataset.bookingId); updateReservationActions(); });
+$('#selectAllReservations').addEventListener('change', (event) => { $$('.reservation-selection').forEach((checkbox) => { if (event.target.checked) selectedReservationIds.add(checkbox.dataset.bookingId); else selectedReservationIds.delete(checkbox.dataset.bookingId); checkbox.checked = event.target.checked; }); updateReservationActions(); });
+$('#cancelSelectedBookings').addEventListener('click', () => { if (selectedReservationIds.size) openCancelBookingModal([...selectedReservationIds]); });
 $('#keepBookingButton').addEventListener('click', closeCancelBookingModal);
 $('#cancelBookingModal').addEventListener('click', (event) => { if (event.target.id === 'cancelBookingModal') closeCancelBookingModal(); });
-$('#confirmCancelBooking').addEventListener('click', async () => { if (!bookingToCancelId) return; const button = $('#confirmCancelBooking'); const cancelledBookingId = bookingToCancelId; button.disabled = true; button.querySelector('span').textContent = '...'; const { error } = await supabaseClient.from('bookings').update({ status: 'cancelled' }).eq('id', cancelledBookingId).eq('user_id', currentUser.id); button.disabled = false; button.querySelector('span').textContent = '→'; if (error) { showToast(error.message); return; } closeCancelBookingModal(); showToast('Reserva cancelada e horário liberado.'); await sendCancelledBookingPush(cancelledBookingId); await renderReservations(); await renderCourts(); });
+$('#confirmCancelBooking').addEventListener('click', async () => { if (!bookingIdsToCancel.length) return; const button = $('#confirmCancelBooking'); const cancelledBookingIds = bookingIdsToCancel; button.disabled = true; button.querySelector('span').textContent = '...'; const { error } = await supabaseClient.from('bookings').update({ status: 'cancelled' }).in('id', cancelledBookingIds).eq('user_id', currentUser.id); button.disabled = false; button.querySelector('span').textContent = '→'; if (error) { showToast(error.message); return; } selectedReservationIds = new Set(); closeCancelBookingModal(); showToast(cancelledBookingIds.length === 1 ? 'Reserva cancelada e horário liberado.' : 'Reservas canceladas e horários liberados.'); await Promise.all(cancelledBookingIds.map(sendCancelledBookingPush)); await renderReservations(); await renderCourts(); });
 $('#notificationButton').addEventListener('click', async () => { $('#notificationPanel').classList.toggle('hidden'); await loadNotifications(); });
 $('#closeNotifications').addEventListener('click', () => $('#notificationPanel').classList.add('hidden'));
 $('#enablePushButton').addEventListener('click', enablePushNotifications);

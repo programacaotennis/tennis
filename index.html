@@ -251,13 +251,17 @@
         </div>
 
          <div class="view" id="reservationsView">
-          <div class="page-intro compact">
-            <div>
-              <p class="eyebrow">SUA AGENDA</p>
-              <h2>Minhas reservas.</h2>
-              <p>Confira seus próximos encontros em quadra.</p>
-            </div>
-          </div>
+           <div class="page-intro compact">
+             <div>
+               <p class="eyebrow">SUA AGENDA</p>
+               <h2>Minhas reservas.</h2>
+               <p>Confira seus próximos encontros em quadra.</p>
+             </div>
+           </div>
+           <div class="reservation-actions hidden" id="reservationActions">
+             <label><input type="checkbox" id="selectAllReservations" /> Selecionar todas</label>
+             <button class="outline-button" id="cancelSelectedBookings" type="button" disabled>Cancelar selecionadas</button>
+           </div>
            <div class="reservation-list" id="reservationList"></div>
          </div>
 
@@ -416,7 +420,7 @@
         <span class="cancel-booking-icon" aria-hidden="true">!</span>
         <p class="eyebrow">LIBERAR HORÁRIO</p>
         <h3 id="cancelBookingTitle">Desistir desta reserva?</h3>
-        <p>
+        <p id="cancelBookingMessage">
           Este horário ficará disponível para outros membros e não poderá ser
           recuperado automaticamente.
         </p>

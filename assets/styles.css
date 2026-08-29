@@ -933,6 +933,37 @@ h1 em {
   gap: 12px;
   max-width: 800px;
 }
+.reservation-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 800px;
+  margin-bottom: 14px;
+}
+.reservation-actions label,
+.reservation-select {
+  display: flex;
+  align-items: center;
+}
+.reservation-actions label {
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.reservation-actions input,
+.reservation-select input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--mint);
+}
+.reservation-actions .outline-button {
+  margin-left: auto;
+}
+.reservation-actions .outline-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
 .court-booking-list {
   display: grid;
   gap: 12px;
@@ -1490,6 +1521,14 @@ h1 em {
     grid-template-columns: 1fr;
     gap: 12px;
     padding: 16px;
+  }
+  .reservation-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .reservation-actions .outline-button {
+    width: 100%;
+    margin-left: 0;
   }
   .court-booking-member {
     grid-column: auto;
