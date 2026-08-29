@@ -1057,8 +1057,8 @@ h1 em {
 .calendar-reservations { display: grid; gap: 5px; }
 .calendar-reservation {
   padding: 6px 7px;
-  border-left: 3px solid var(--mint);
-  background: var(--mint-pale);
+  border-left: 3px solid var(--reservation-border, var(--mint));
+  background: var(--reservation-background, var(--mint-pale));
   font-size: 10px;
   line-height: 1.25;
 }

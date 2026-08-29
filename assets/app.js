@@ -5,6 +5,13 @@ const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 const productionUrl = 'https://tennis.programacaotennis.workers.dev';
 const authRedirectUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? window.location.origin : productionUrl;
 const bookingSlots = ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
+const calendarReservationColors = [
+    { background: '#e7f6e8', border: '#75bf7e' },
+    { background: '#e8efff', border: '#7897d7' },
+    { background: '#fff0e1', border: '#dc9d5d' },
+    { background: '#f4e8f5', border: '#bd86b3' },
+    { background: '#e1f4f1', border: '#65aaa4' },
+];
 let selectedCourt = null;
 let selectedTime = null;
 let currentUser = null;
@@ -147,7 +154,9 @@ async function renderCourtBookings() {
         const reservations = bookings.map((booking) => {
             const member = profilesById.get(booking.user_id);
             const court = Array.isArray(booking.courts) ? booking.courts[0] : booking.courts;
-            return `<div class="calendar-reservation"><strong>${escapeHtml(booking.start_time.slice(0, 5))}</strong><span>${escapeHtml(member?.full_name || member?.email || 'Membro')}</span>${bookingCalendarCourtId ? '' : `<small>${escapeHtml(court?.name || 'Quadra')}</small>`}</div>`;
+            const colorIndex = [...booking.user_id].reduce((total, character) => total + character.charCodeAt(0), 0) % calendarReservationColors.length;
+            const color = calendarReservationColors[colorIndex];
+            return `<div class="calendar-reservation" style="--reservation-background: ${color.background}; --reservation-border: ${color.border}"><strong>${escapeHtml(booking.start_time.slice(0, 5))}</strong><span>${escapeHtml(member?.full_name || member?.email || 'Membro')}</span>${bookingCalendarCourtId ? '' : `<small>${escapeHtml(court?.name || 'Quadra')}</small>`}</div>`;
         }).join('');
         return `<article class="booking-calendar-day ${dateValue(date) === dateValue(today) ? 'today' : ''}"><strong class="calendar-day-number">${day}</strong><div class="calendar-reservations">${reservations || '<span class="calendar-no-reservations">Livre</span>'}</div></article>`;
     }).join('');
