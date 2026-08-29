@@ -1226,6 +1226,7 @@ h1 em {
   position: fixed;
   right: 24px;
   bottom: 24px;
+  pointer-events: none;
   padding: 14px 18px;
   background: var(--ink);
   color: white;
