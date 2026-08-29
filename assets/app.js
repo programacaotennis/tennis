@@ -212,7 +212,33 @@ $('#prevBookingMonth').addEventListener('click', async () => { bookingCalendarMo
 $('#nextBookingMonth').addEventListener('click', async () => { bookingCalendarMonth = new Date(bookingCalendarMonth.getFullYear(), bookingCalendarMonth.getMonth() + 1, 1); await renderCourtBookings(); });
 $('#prevDay').addEventListener('click', async () => { if ($('#prevDay').disabled) return; currentDate.setDate(currentDate.getDate() - 1); selectedCourt = null; selectedTime = null; updateRecurrenceOptions(); await renderCourts(); updateSummary(); });
 $('#nextDay').addEventListener('click', async () => { currentDate.setDate(currentDate.getDate() + 1); selectedCourt = null; selectedTime = null; updateRecurrenceOptions(); await renderCourts(); updateSummary(); });
-$('#confirmBooking').addEventListener('click', async () => { if (!selectedCourt || !selectedTime || !currentUser) return; const button = $('#confirmBooking'); button.disabled = true; button.querySelector('span').textContent = '...'; const recurrenceType = $('#recurrenceType').value; const recurrenceCount = recurrenceType === 'once' ? 1 : Math.max(1, Math.min(recurrenceLimit(recurrenceType), Number($('#recurrenceCount').value) || 1)); const { error } = await supabaseClient.rpc('create_recurring_booking', { p_court_id: selectedCourt.id, p_booking_date: dateValue(currentDate), p_start_time: selectedTime, p_recurrence_type: recurrenceType, p_recurrence_count: recurrenceCount }); button.disabled = false; button.querySelector('span').textContent = '→'; if (error) { showToast(error.code === '42883' ? 'Execute a migração de recorrência no Supabase.' : error.message); await renderCourts(); return; } showToast(recurrenceCount > 1 ? 'Reservas recorrentes confirmadas!' : 'Reserva confirmada com sucesso!'); selectedCourt = null; selectedTime = null; $('#recurrenceType').value = 'once'; $('#recurrenceCount').value = 1; await renderCourts(); updateSummary(); await renderReservations(); });
+$('#confirmBooking').addEventListener('click', async () => {
+    if (!selectedCourt || !selectedTime || !currentUser) return;
+    const recurrenceType = $('#recurrenceType').value;
+    const recurrenceCount = recurrenceType === 'once' ? 1 : Math.max(1, Math.min(recurrenceLimit(recurrenceType), Number($('#recurrenceCount').value) || 1));
+    const monthlyOccurrences = Math.min(30, new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate() - currentDate.getDate() + 1);
+    const occurrenceTotal = recurrenceType === 'monthly' ? monthlyOccurrences : recurrenceCount;
+    const { count, error: countError } = await supabaseClient.from('bookings').select('*', { count: 'exact', head: true }).eq('user_id', currentUser.id).eq('court_id', selectedCourt.id).eq('start_time', selectedTime).eq('status', 'confirmed').gte('booking_date', dateValue(today));
+    if (!countError && (count || 0) + occurrenceTotal > 30) {
+        showToast(`Limite de 30 dias: você já possui ${count || 0} reserva(s) futura(s) na ${selectedCourt.name} às ${selectedTime}.`);
+        return;
+    }
+    const button = $('#confirmBooking');
+    button.disabled = true;
+    button.querySelector('span').textContent = '...';
+    const { error } = await supabaseClient.rpc('create_recurring_booking', { p_court_id: selectedCourt.id, p_booking_date: dateValue(currentDate), p_start_time: selectedTime, p_recurrence_type: recurrenceType, p_recurrence_count: recurrenceCount });
+    button.disabled = false;
+    button.querySelector('span').textContent = '→';
+    if (error) { showToast(error.code === '42883' ? 'Execute a migração de recorrência no Supabase.' : error.message || 'Não foi possível confirmar a reserva.'); await renderCourts(); return; }
+    showToast(recurrenceType === 'monthly' || recurrenceCount > 1 ? 'Reservas recorrentes confirmadas!' : 'Reserva confirmada com sucesso!');
+    selectedCourt = null;
+    selectedTime = null;
+    $('#recurrenceType').value = 'once';
+    $('#recurrenceCount').value = 1;
+    await renderCourts();
+    updateSummary();
+    await renderReservations();
+});
 let editingCourtId = null;
 function openCourtModal(court = null) { editingCourtId = court?.id || null; $('#courtModalTitle').textContent = court ? 'Editar quadra' : 'Nova quadra'; $('#courtName').value = court?.name || ''; $('#courtSurface').value = court?.surface || 'Saibro'; $('#courtLocation').value = court?.location || 'Externa'; $('#courtActive').checked = court?.active ?? true; $('#deleteCourtButton').classList.toggle('hidden', !editingCourtId); $('#courtModal').classList.remove('hidden'); $('#courtName').focus(); }
 function closeCourtModal() { $('#courtModal').classList.add('hidden'); editingCourtId = null; $('#courtForm').reset(); $('#courtActive').checked = true; }
