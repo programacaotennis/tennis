@@ -25,6 +25,7 @@ Para publicar sem PHP, use `index.html` em Cloudflare Pages, Netlify ou GitHub P
 4. Promova o primeiro usuario a administrador usando o `update` comentado no final do SQL.
 5. Se o banco já existia, execute também `supabase-migration-horarios.sql` para aplicar a grade diária de 06:00 a 22:00 em blocos de 2 horas.
 6. Execute `supabase-migration-recorrencia.sql` para habilitar reservas diária, semanal e mensal e o limite de 30 dias consecutivos.
+7. Execute `supabase-migration-calendario-publico.sql` para permitir que todos os membros consultem o calendário de reservas confirmadas.
 
 Ao atualizar uma instalação existente, execute novamente `supabase-migration-recorrencia.sql`: ela adiciona os dados de contexto das notificações e valida a disponibilidade semanal também no banco.
 

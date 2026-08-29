@@ -17,6 +17,8 @@ let notificationLoadErrorShown = false;
 let bookingToCancelId = null;
 const today = new Date();
 let currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+let bookingCalendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+let bookingCalendarCourtId = '';
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
@@ -88,17 +90,38 @@ async function renderReservations() {
 
 async function renderCourtBookings() {
     const list = $('#courtBookingList');
-    const { data, error } = await supabaseClient.from('bookings').select('id, user_id, booking_date, start_time, end_time, courts(name, surface, location)').eq('status', 'confirmed').gte('booking_date', dateValue(today)).order('booking_date').order('start_time');
+    const monthStart = new Date(bookingCalendarMonth.getFullYear(), bookingCalendarMonth.getMonth(), 1);
+    const monthEnd = new Date(bookingCalendarMonth.getFullYear(), bookingCalendarMonth.getMonth() + 1, 0);
+    $('#bookingCalendarMonth').textContent = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(monthStart);
+    const courtSelect = $('#courtBookingCourt');
+    courtSelect.innerHTML = `<option value="">Todas as quadras</option>${courts.filter((court) => court.active).map((court) => `<option value="${court.id}">${escapeHtml(court.name)}</option>`).join('')}`;
+    courtSelect.value = bookingCalendarCourtId;
+    if (!courtSelect.value) bookingCalendarCourtId = '';
+    const { data, error } = await supabaseClient.from('bookings').select('id, user_id, court_id, booking_date, start_time, end_time, courts(name)').eq('status', 'confirmed').gte('booking_date', dateValue(monthStart)).lte('booking_date', dateValue(monthEnd)).order('start_time');
     if (error) { list.innerHTML = '<div class="empty-summary"><p>Não foi possível carregar as reservas.</p></div>'; showToast(error.message); return; }
     const userIds = [...new Set((data || []).map((booking) => booking.user_id))];
     const { data: profiles, error: profilesError } = userIds.length ? await supabaseClient.from('profiles').select('id, full_name, email').in('id', userIds) : { data: [], error: null };
     if (profilesError) { list.innerHTML = '<div class="empty-summary"><p>Não foi possível carregar os membros.</p></div>'; showToast(profilesError.message); return; }
     const profilesById = new Map((profiles || []).map((profile) => [profile.id, profile]));
-    list.innerHTML = data?.length ? data.map((booking) => {
-        const member = profilesById.get(booking.user_id);
-        const court = Array.isArray(booking.courts) ? booking.courts[0] : booking.courts;
-        return `<article class="court-booking-item"><div class="court-booking-date"><strong>${escapeHtml(formatBookingDate(booking.booking_date))}</strong><span>${escapeHtml(`${booking.start_time.slice(0, 5)} — ${booking.end_time.slice(0, 5)}`)}</span></div><div><strong>${escapeHtml(court?.name || 'Quadra removida')}</strong><small>${escapeHtml(`${court?.surface || ''}${court?.surface && court?.location ? ' · ' : ''}${court?.location || ''}`)}</small></div><div class="court-booking-member"><span>Reservado por</span><strong>${escapeHtml(member?.full_name || member?.email || 'Membro')}</strong></div></article>`;
-    }).join('') : '<div class="empty-summary"><span>＋</span><p>Não há reservas futuras.<br>Os próximos horários aparecerão aqui.</p></div>';
+    const bookingsByDate = new Map();
+    (data || []).filter((booking) => !bookingCalendarCourtId || booking.court_id === Number(bookingCalendarCourtId)).forEach((booking) => {
+        const bookings = bookingsByDate.get(booking.booking_date) || [];
+        bookings.push(booking);
+        bookingsByDate.set(booking.booking_date, bookings);
+    });
+    const emptyDays = Array.from({ length: monthStart.getDay() }, () => '<div class="booking-calendar-day empty" aria-hidden="true"></div>').join('');
+    const days = Array.from({ length: monthEnd.getDate() }, (_, index) => {
+        const day = index + 1;
+        const date = new Date(bookingCalendarMonth.getFullYear(), bookingCalendarMonth.getMonth(), day);
+        const bookings = bookingsByDate.get(dateValue(date)) || [];
+        const reservations = bookings.map((booking) => {
+            const member = profilesById.get(booking.user_id);
+            const court = Array.isArray(booking.courts) ? booking.courts[0] : booking.courts;
+            return `<div class="calendar-reservation"><strong>${escapeHtml(booking.start_time.slice(0, 5))}</strong><span>${escapeHtml(member?.full_name || member?.email || 'Membro')}</span>${bookingCalendarCourtId ? '' : `<small>${escapeHtml(court?.name || 'Quadra')}</small>`}</div>`;
+        }).join('');
+        return `<article class="booking-calendar-day ${dateValue(date) === dateValue(today) ? 'today' : ''}"><strong class="calendar-day-number">${day}</strong><div class="calendar-reservations">${reservations || '<span class="calendar-no-reservations">Livre</span>'}</div></article>`;
+    }).join('');
+    list.innerHTML = emptyDays + days;
 }
 
 async function loadNotifications({ announce = false } = {}) { if (!currentUser) return; const { data, error } = await supabaseClient.from('notifications').select('id, message, court_id, booking_date, start_time').eq('user_id', currentUser.id).eq('read', false).order('created_at', { ascending: false }).limit(20); const panel = $('#notificationList'); if (error) { panel.innerHTML = '<p class="notification-empty">Não foi possível carregar as notificações.</p>'; $('#notificationButton').classList.remove('has-notifications'); if (!notificationLoadErrorShown) showToast('Atualize a migração de recorrência no Supabase para ativar as notificações.'); notificationLoadErrorShown = true; return; } notificationLoadErrorShown = false; const count = data?.length || 0; if (announce && unreadNotificationCount !== null && count > unreadNotificationCount) showToast('Um horário acabou de ser liberado.'); unreadNotificationCount = count; if (count) { $('#notificationButton').classList.add('has-notifications'); $('#notificationButton').title = `${count} nova(s) notificação(ões)`; panel.innerHTML = data.map((notification) => { const court = courts.find((item) => item.id === Number(notification.court_id)); const date = notification.booking_date ? formatDate(new Date(`${notification.booking_date}T12:00:00`)) : 'Data não informada'; const time = notification.start_time?.slice(0, 5) || 'Horário não informado'; return `<button class="notification-item" data-notification-id="${notification.id}" data-court-id="${notification.court_id || ''}" data-date="${notification.booking_date || ''}" data-time="${time}"><span class="notification-item-icon">⌾</span><span class="notification-item-content"><strong>Horário liberado</strong><span class="notification-item-court">${court?.name || 'Quadra disponível'}</span><span class="notification-item-details">${date} · ${time}–${notification.start_time ? endTime(time) : ''}</span><span class="notification-item-action">Reservar este horário <b>→</b></span></span></button>`; }).join(''); } else { $('#notificationButton').classList.remove('has-notifications'); $('#notificationButton').title = 'Notificações'; panel.innerHTML = '<div class="notification-empty"><span>✓</span><p>Nenhuma notificação nova.</p><small>Quando uma quadra for liberada, ela aparecerá aqui.</small></div>'; } }
@@ -148,7 +171,10 @@ $('#closeNotifications').addEventListener('click', () => $('#notificationPanel')
 $('#enablePushButton').addEventListener('click', enablePushNotifications);
 $('#clearNotificationsButton').addEventListener('click', async () => { const { error } = await supabaseClient.from('notifications').update({ read: true }).eq('user_id', currentUser.id).eq('read', false); if (error) { showToast(error.message); return; } showToast('Notificações limpas.'); await loadNotifications(); });
 $('#notificationList').addEventListener('click', async (event) => { const item = event.target.closest('.notification-item'); if (!item) return; await supabaseClient.from('notifications').update({ read: true }).eq('id', item.dataset.notificationId); if (item.dataset.date) currentDate = new Date(`${item.dataset.date}T12:00:00`); selectedCourt = courts.find((court) => court.id === Number(item.dataset.courtId)) || null; selectedTime = item.dataset.time || null; $('#notificationPanel').classList.add('hidden'); $$('.nav-item, .mobile-nav-item[data-view]').forEach((button) => button.classList.remove('active')); $$('[data-view="booking"]').forEach((button) => button.classList.add('active')); $$('.view').forEach((view) => view.classList.remove('active-view')); $('#bookingView').classList.add('active-view'); await renderCourts(); updateSummary(); await loadNotifications(); });
-$$('.nav-item, .mobile-nav-item[data-view]').forEach((item) => item.addEventListener('click', async () => { $$('.nav-item, .mobile-nav-item[data-view]').forEach((button) => button.classList.remove('active')); $$(`.nav-item[data-view="${item.dataset.view}"], .mobile-nav-item[data-view="${item.dataset.view}"]`).forEach((button) => button.classList.add('active')); $$('.view').forEach((view) => view.classList.remove('active-view')); $(`#${item.dataset.view}View`).classList.add('active-view'); if (item.dataset.view === 'courtBookings' && currentProfile?.role === 'admin') await renderCourtBookings(); }));
+$$('.nav-item, .mobile-nav-item[data-view]').forEach((item) => item.addEventListener('click', async () => { $$('.nav-item, .mobile-nav-item[data-view]').forEach((button) => button.classList.remove('active')); $$(`.nav-item[data-view="${item.dataset.view}"], .mobile-nav-item[data-view="${item.dataset.view}"]`).forEach((button) => button.classList.add('active')); $$('.view').forEach((view) => view.classList.remove('active-view')); $(`#${item.dataset.view}View`).classList.add('active-view'); if (item.dataset.view === 'courtBookings') await renderCourtBookings(); }));
+$('#courtBookingCourt').addEventListener('change', async () => { bookingCalendarCourtId = $('#courtBookingCourt').value; await renderCourtBookings(); });
+$('#prevBookingMonth').addEventListener('click', async () => { bookingCalendarMonth = new Date(bookingCalendarMonth.getFullYear(), bookingCalendarMonth.getMonth() - 1, 1); await renderCourtBookings(); });
+$('#nextBookingMonth').addEventListener('click', async () => { bookingCalendarMonth = new Date(bookingCalendarMonth.getFullYear(), bookingCalendarMonth.getMonth() + 1, 1); await renderCourtBookings(); });
 $('#prevDay').addEventListener('click', async () => { if ($('#prevDay').disabled) return; currentDate.setDate(currentDate.getDate() - 1); selectedCourt = null; selectedTime = null; updateRecurrenceOptions(); await renderCourts(); updateSummary(); });
 $('#nextDay').addEventListener('click', async () => { currentDate.setDate(currentDate.getDate() + 1); selectedCourt = null; selectedTime = null; updateRecurrenceOptions(); await renderCourts(); updateSummary(); });
 $('#confirmBooking').addEventListener('click', async () => { if (!selectedCourt || !selectedTime || !currentUser) return; const button = $('#confirmBooking'); button.disabled = true; button.querySelector('span').textContent = '...'; const recurrenceType = $('#recurrenceType').value; const recurrenceCount = recurrenceType === 'once' ? 1 : Math.max(1, Math.min(recurrenceLimit(recurrenceType), Number($('#recurrenceCount').value) || 1)); const { error } = await supabaseClient.rpc('create_recurring_booking', { p_court_id: selectedCourt.id, p_booking_date: dateValue(currentDate), p_start_time: selectedTime, p_recurrence_type: recurrenceType, p_recurrence_count: recurrenceCount }); button.disabled = false; button.querySelector('span').textContent = '→'; if (error) { showToast(error.code === '42883' ? 'Execute a migração de recorrência no Supabase.' : error.message); await renderCourts(); return; } showToast(recurrenceCount > 1 ? 'Reservas recorrentes confirmadas!' : 'Reserva confirmada com sucesso!'); selectedCourt = null; selectedTime = null; $('#recurrenceType').value = 'once'; $('#recurrenceCount').value = 1; await renderCourts(); updateSummary(); await renderReservations(); });

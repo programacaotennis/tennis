@@ -137,8 +137,8 @@
            <button class="nav-item" data-view="reservations">
              <span>✓</span> Minhas reservas
            </button>
-           <button class="nav-item admin-only" data-view="courtBookings">
-             <span>▤</span> Reservas das quadras
+           <button class="nav-item" data-view="courtBookings">
+             <span>▤</span> Todas as reservas
            </button>
            <button class="nav-item admin-only" data-view="admin">
              <span>⌘</span> Administração
@@ -175,7 +175,7 @@
           </div>
         </header>
 
-        <nav class="mobile-nav" aria-label="Navegação mobile"><button class="mobile-nav-item active" data-view="booking"><span>◷</span>Reservar</button><button class="mobile-nav-item" data-view="reservations"><span>✓</span>Minhas reservas</button><button class="mobile-nav-item admin-only" data-view="courtBookings"><span>▤</span>Quadras</button><button class="mobile-nav-item admin-only" data-view="admin"><span>⌘</span>Admin</button><button class="mobile-nav-item" id="mobileLogout"><span>↗</span>Sair</button></nav>
+        <nav class="mobile-nav" aria-label="Navegação mobile"><button class="mobile-nav-item active" data-view="booking"><span>◷</span>Reservar</button><button class="mobile-nav-item" data-view="reservations"><span>✓</span>Minhas reservas</button><button class="mobile-nav-item" data-view="courtBookings"><span>▤</span>Agenda</button><button class="mobile-nav-item admin-only" data-view="admin"><span>⌘</span>Admin</button><button class="mobile-nav-item" id="mobileLogout"><span>↗</span>Sair</button></nav>
         <div class="notification-panel hidden" id="notificationPanel"><div class="notification-panel-header"><strong>Notificações</strong><div><button type="button" class="clear-notifications" id="clearNotificationsButton">Limpar</button><button type="button" id="closeNotifications" aria-label="Fechar notificações">×</button></div></div><div id="notificationList"></div><div class="notification-panel-footer"><button type="button" id="enablePushButton">Ativar alertas neste dispositivo</button></div></div>
         <div class="view active-view" id="bookingView">
           <div class="page-intro">
@@ -265,11 +265,25 @@
            <div class="page-intro compact">
              <div>
                <p class="eyebrow">AGENDA DO CLUBE</p>
-               <h2>Reservas das quadras.</h2>
-               <p>Acompanhe todos os horários confirmados pelos membros.</p>
+               <h2>Todas as reservas.</h2>
+               <p>Consulte a agenda de cada quadra e encontre seu próximo jogo.</p>
              </div>
            </div>
-           <div class="court-booking-list" id="courtBookingList"></div>
+           <section class="booking-calendar">
+             <div class="booking-calendar-toolbar">
+               <label for="courtBookingCourt">Quadra</label>
+               <select id="courtBookingCourt" aria-label="Filtrar reservas por quadra"></select>
+               <div class="calendar-month-controls">
+                 <button type="button" id="prevBookingMonth" aria-label="Mês anterior">‹</button>
+                 <strong id="bookingCalendarMonth"></strong>
+                 <button type="button" id="nextBookingMonth" aria-label="Próximo mês">›</button>
+               </div>
+             </div>
+             <div class="booking-calendar-scroll">
+               <div class="booking-calendar-weekdays" aria-hidden="true"><span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span></div>
+               <div class="booking-calendar-grid" id="courtBookingList"></div>
+             </div>
+           </section>
          </div>
 
          <div class="view" id="adminView">
